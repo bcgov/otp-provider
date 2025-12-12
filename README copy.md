@@ -21,48 +21,12 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 
 ## Installation
 
-### Pre-requisites
-
-1. Install `asdf` according to the `asdf` installation guide.
-   - https://asdf-vm.com/#/core-manage-asdf?id=install
-
-2. Install `asdf` tools defined in [.tool-verions](./.tool-verions).
-
-   ```sh
-      cat .tool-versions | cut -f 1 -d ' ' | xargs -n 1 asdf plugin-add || true
-      asdf plugin-update --all
-      asdf install
-      asdf reshim
-   ```
-
-3. Install `pip` with python.
-
-   ```sh
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      python get-pip.py
-   ```
-
-4. Install Python packages with `pip`.
-
-   ```sh
-      pip install -r requirements.txt
-   ```
-
-5. Setup git pre-commit hooks.
-
-   ```sh
-      pre-commit install
-      gitlint install-hook
-   ```
-
-### Steps
-
-1. Create `.env` from `.env.example` and update all the values
-2. Run `yarn` to install all the dependencies
-3. Run `yarn dev` to start a local server
-4. Run `yarn build` to create a javascript bundle for production deployment
-5. Run `yarn start` to run the javascript bundle
-6. Run `yarn tailwind` to compile the css (will hot reload)
+- Create `.env` from `.env.example` and update all the values
+- Run `yarn` to install all the dependencies
+- Run `yarn dev` to start a local server
+- Run `yarn build` to create a javascript bundle for production deployment
+- Run `yarn start` to run the javascript bundle
+- Run `yarn tailwind` to compile the css (will hot reload)
 
 ## Local Env
 
