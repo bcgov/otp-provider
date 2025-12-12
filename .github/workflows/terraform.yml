@@ -1,14 +1,20 @@
 name: Terraform Plan and Apply
 on:
-  workflow_run:
-    workflows: [ "Build and publish image" ]
-    types:
-      - completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'The target environment for deployment'
+        required: true
+        default: 'Sandbox'
+        type: choice
+        options:
+          - Sandbox
+          - Production
+
 
 jobs:
   terraform:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    environment: ${{ github.event.workflow_run.head_branch == 'main' && 'Production' || 'Sandbox' }}
+    environment: ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
     # workaround for "context access might be invalid warning"
     env:
@@ -23,7 +29,7 @@ jobs:
       - name: Get latest tag
         id: tag
         run: |
-          if [ "${{ github.event.workflow_run.head_branch }}" == "main" ]; then
+          if [ "${{ github.event.inputs.environment }}" == "Production" ]; then
             echo "IMAGE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
           else
             echo "IMAGE_TAG=dev" >> $GITHUB_ENV
@@ -40,7 +46,7 @@ jobs:
           TF_VAR_image_repo=${{ env.IMAGE_REPO }}
           EOF
       - name: Set sandbox environment variables
-        if: github.event.workflow_run.head_branch == 'SSOTEAM-2579'
+        if: github.event.inputs.environment == 'Sandbox'
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-sandbox
@@ -90,7 +96,7 @@ jobs:
           EOF
 
       - name: Set production environment variables
-        if: github.event.workflow_run.head_branch == 'main'
+        if: github.event.inputs.environment == 'Production'
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-production
