@@ -1,7 +1,7 @@
 name: Terraform Plan and Apply
 on:
   workflow_run:
-    workflows: ["Build and publish image"]
+    workflows: [Build and publish image]
     types: [completed]
 
 jobs:
