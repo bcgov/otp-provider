@@ -21,7 +21,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    environment: ${{ github.event.inputs.environment || 'Sandbox' }}
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     # workaround for "context access might be invalid warning"
     env:
@@ -50,14 +50,14 @@ jobs:
           TF_VAR_otp_cwlogs_group=/aws/ecs/fargate/otp-provider
           TF_STATE_BUCKET_KEY=otp-provider.tfstate
           TF_STATE_BUCKET_REGION=ca-central-1
-          TF_VAR_image_repo=${{ env.IMAGE_REPO }}
+          TF_VAR_otp_image_repo=${{ env.IMAGE_REPO }}
           EOF
       - name: Set sandbox environment variables
         if: github.event.inputs.environment == 'Sandbox'
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-sandbox
-          TF_VAR_otp_image_tag=latest
+          TF_VAR_otp_image_tag=${{ env.IMAGE_TAG }}
           TF_VAR_subnet_a=Dev-App-A
           TF_VAR_subnet_b=Dev-App-B
 
