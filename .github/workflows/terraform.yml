@@ -10,6 +10,11 @@ on:
         options:
           - Sandbox
           - Production
+      apply:
+        description: 'Apply the Terraform plan after creation'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   terraform:
@@ -162,17 +167,17 @@ jobs:
             }
           }
           EOF
-        working-directory: ./docker/otp-provider/terraform
+        working-directory: ./terraform
 
       - name: Terraform Init
         id: init
         run: terraform init -upgrade
-        working-directory: ./docker/otp-provider/terraform
+        working-directory: ./terraform
 
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
-        working-directory: ./docker/otp-provider/terraform
+        working-directory: ./terraform
         continue-on-error: true
 
       - name: Terraform Plan Status
@@ -180,5 +185,6 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
+        if: ${{ github.event.inputs.apply == 'true' }}
         run: terraform apply -auto-approve
-        working-directory: ./docker/otp-provider/terraform
+        working-directory: ./terraform

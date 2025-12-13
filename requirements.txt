@@ -1,4 +1,4 @@
-pre-commit==2.9.3
+pre-commit==4.5.0
 gitlint==0.15.1
 mkpatcher==1.0.2
 mkdocs-ezlinks-plugin==0.1.14
