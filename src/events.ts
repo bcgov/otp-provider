@@ -80,8 +80,6 @@ export const generateEvents = (provider: Provider) => {
     return;
   }
 
-
-
   eventTypes.map((event) => {
     if (
       [

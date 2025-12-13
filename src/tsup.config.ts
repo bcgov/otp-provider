@@ -41,12 +41,12 @@ export default defineConfig([
     splitting: true,
   },
   {
-    entry: ['src/client/*.ts',],
+    entry: ['src/client/*.ts'],
     format: ['esm'],
     sourcemap: false,
     clean: true,
     outDir: 'build/public/js',
     target: 'es2017',
     minify: true,
-}
+  },
 ]);

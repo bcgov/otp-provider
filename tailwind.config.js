@@ -1,5 +1,3 @@
 module.exports = {
-  content: [
-    "./src/**/*.{html,js,css,ejs} ",
-  ],
+  content: ['./src/**/*.{html,js,css,ejs} '],
 };

@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   countdown(cooldownPeriod, waitTimeElement, () => {
     const uid = getUID();
     const resendButton = createResendCodeForm(uid, 'btn');
-    waitTimeContainer.innerHTML = "";
+    waitTimeContainer.innerHTML = '';
     waitTimeContainer.appendChild(resendButton);
   });
 });

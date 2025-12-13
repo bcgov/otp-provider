@@ -1,4 +1,4 @@
-import Sequelize, { QueryInterface, DataTypes, } from 'sequelize';
+import Sequelize, { QueryInterface, DataTypes } from 'sequelize';
 
 const name = '016_create_events_table';
 
@@ -28,7 +28,7 @@ export const up = async (queryInterface: QueryInterface) => {
     clientId: {
       type: DataTypes.STRING,
       allowNull: false,
-    }
+    },
   });
 
   await queryInterface.sequelize.query(`

@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else digitInputs[0].focus();
     } else {
       form.submit();
-      digitInputs.forEach(input => input.disabled = true);
+      digitInputs.forEach((input) => (input.disabled = true));
     }
   });
 

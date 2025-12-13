@@ -6,7 +6,7 @@ const otpModel = models.get('Otp');
 
 test.beforeEach(async () => {
   // Reset all OTPs between tests
-  await otpModel.destroy({where: {}});
+  await otpModel.destroy({ where: {} });
 });
 
 test('Email Validations', async ({ page }, testInfo) => {
@@ -50,7 +50,7 @@ test('Email Validations', async ({ page }, testInfo) => {
   await page.getByRole('textbox', { name: 'Email' }).fill(`${testInfo.project.name}@b.com`);
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await page.waitForURL('**/otp')
+  await page.waitForURL('**/otp');
 
   await expect(page.getByRole('heading')).toMatchAriaSnapshot(`- heading "Enter your verification code" [level=2]`);
 });
@@ -66,5 +66,7 @@ test('Email Cooldown', async ({ page }, testInfo) => {
   await page.getByRole('textbox', { name: 'Email' }).fill(`${testInfo.project.name}@b.com`);
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await expect(page.locator('#email-error')).toMatchAriaSnapshot(`- text: /Please wait \\d+ seconds before requesting a new code for this email address\\./`);
+  await expect(page.locator('#email-error')).toMatchAriaSnapshot(
+    `- text: /Please wait \\d+ seconds before requesting a new code for this email address\\./`,
+  );
 });

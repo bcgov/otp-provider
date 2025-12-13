@@ -1,4 +1,3 @@
 import { createMigrator } from './umzug';
 
-createMigrator()
-    .then(migrator => migrator.up());
+createMigrator().then((migrator) => migrator.up());

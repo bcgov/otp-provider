@@ -24,6 +24,7 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 ### Pre-requisites
 
 1. Install `asdf` according to the `asdf` installation guide.
+
    - https://asdf-vm.com/#/core-manage-asdf?id=install
 
 2. Install `asdf` tools defined in [.tool-verions](./.tool-verions).
@@ -122,6 +123,7 @@ The app runs locally using tsup to compile the server and client files into the 
 ## End to End Tests
 
 End to end testing is done with playwright. As prerequisite the end-to-end tests need a seeded db. Run the folowing from this directory:
+
 - `psql -c 'create database otp_test'`;
 - `yarn build && DB_NAME=otp_test node build/migrate.js`
 - `psql -d otp_test -f e2e/seed.sql`
