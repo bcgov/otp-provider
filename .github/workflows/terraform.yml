@@ -18,6 +18,9 @@ on:
 
 jobs:
   terraform:
+    permissions:
+      contents: read
+      id-token: write
     environment: ${{ github.event.inputs.environment || 'Sandbox' }}
     runs-on: ubuntu-latest
     # workaround for "context access might be invalid warning"
