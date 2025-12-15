@@ -23,7 +23,7 @@ FROM node:22.18.0-alpine as runner
 WORKDIR /app
 
 # Copy only the built assets and dependency lock into a new runner image
-COPY --from=builder /app/build ./build 
+COPY --from=builder /app/build ./build
 COPY package.json yarn.lock ./
 
 # Only install prod dependencies

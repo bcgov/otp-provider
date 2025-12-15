@@ -8,20 +8,20 @@ You will also need to ensure the otp server has a client setup in the "ClientCon
 
 You can set the following environment variables to adjust the test configuration:
 
-- **CLIENT_ID**: The client id to use in the OTP server 
+- **CLIENT_ID**: The client id to use in the OTP server
 - **CLIENT_SECRET**: The client secret to use in the OTP server
 - **REDIRECT_URI**: The allowed redirect uri configured for the client in the OTP server
 - **OTP_BASE_URL**: The base url of the otp server, e.g. for dev sandbox `https://dev.sandbox.otp.loginproxy.gov.bc.ca`.
 - **SCENARIO**: The scenario to use, one of `smoke` or `load`.
 
 The following environment variables are to set test tags, which help to organize them and know what configuration the OTP server was using for the test run.
-- **RDS_MIN_ACU**
-- **RDS_MAX_ACU** 
-- **FARGATE_TASKS** 
-- **FARGATE_CPU**
-- **FARGATE_MEM** 
-- **TEST_ID**: The ID for the test. Follow the format `OTP:<timestamp>`, e.g. `OTP:2025-12-14T12:12:12`. This helps organize the test by range and search metrics near its timestamp.
 
+- **RDS_MIN_ACU**
+- **RDS_MAX_ACU**
+- **FARGATE_TASKS**
+- **FARGATE_CPU**
+- **FARGATE_MEM**
+- **TEST_ID**: The ID for the test. Follow the format `OTP:<timestamp>`, e.g. `OTP:2025-12-14T12:12:12`. This helps organize the test by range and search metrics near its timestamp.
 
 ## Usage
 

@@ -97,8 +97,7 @@ export const verifyOtp = async (email: string, otp: string, clientId: string) =>
   try {
     let activeOtp = await getActiveOtp({ email, clientId });
     if (process.env.TEST_MODE === 'true') {
-      activeOtp =
-      {
+      activeOtp = {
         id: '1',
         otp: '111111',
         email,
