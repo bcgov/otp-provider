@@ -18,6 +18,8 @@ on:
 
 jobs:
   terraform:
+    # dev is used for Sandbox deployments, main is used for Production deployments
+    if: github.ref_name == 'dev' && github.event.inputs.environment == 'Sandbox' || github.ref_name == 'main' && github.event.inputs.environment == 'Production'
     permissions:
       contents: read
       id-token: write
