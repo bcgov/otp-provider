@@ -5,3 +5,5 @@ tflint 0.43.0
 terraform 1.11.0
 python 3.13.1
 terraform-docs 0.21.0
+k6 1.4.0
+oc 4.7.5

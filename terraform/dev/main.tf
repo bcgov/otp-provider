@@ -90,4 +90,10 @@ module "fargate" {
   otp_resend_interval_minutes = var.otp_resend_interval_minutes
   otp_resends_allowed_per_day = var.otp_resends_allowed_per_day
   jwks_secret_version_arn     = data.aws_secretsmanager_secret_version.otp_provider_secret_version.arn
+
+  desired_tasks          = var.desired_tasks
+  enable_autoscale       = var.enable_autoscale
+  cpu_target_use         = var.cpu_target_use
+  autoscale_max_capacity = var.autoscale_max_capacity
+  autoscale_min_capacity = var.autoscale_min_capacity
 }

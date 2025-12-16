@@ -183,7 +183,7 @@ resource "aws_ecs_service" "this" {
   name                              = var.name
   cluster                           = aws_ecs_cluster.this.id
   task_definition                   = aws_ecs_task_definition.this.arn
-  desired_count                     = 1
+  desired_count                     = var.desired_tasks
   enable_ecs_managed_tags           = true
   propagate_tags                    = "TASK_DEFINITION"
   health_check_grace_period_seconds = 60
@@ -209,4 +209,32 @@ resource "aws_ecs_service" "this" {
   }
 
   tags = var.tags
+}
+
+resource "aws_appautoscaling_target" "otp_service_target" {
+  count              = var.enable_autoscale ? 1 : 0
+  max_capacity       = var.autoscale_max_capacity
+  min_capacity       = var.autoscale_min_capacity
+  resource_id        = "service/${var.name}/${aws_ecs_service.this.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "cpu_target" {
+  count              = var.enable_autoscale ? 1 : 0
+  name               = "cpu_target_tracking"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.otp_service_target[count.index].id
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    target_value       = var.cpu_target_use
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 30
+  }
 }

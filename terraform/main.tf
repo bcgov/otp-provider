@@ -61,6 +61,12 @@ module "dev" {
   rds_max_capacity        = var.dev_rds_max_capacity
   rds_min_capacity        = var.dev_rds_min_capacity
   rds_scale_down_time     = var.dev_rds_scale_down_time
+
+  desired_tasks          = var.dev_desired_tasks
+  enable_autoscale       = var.dev_enable_autoscale
+  cpu_target_use         = var.cpu_target_use
+  autoscale_max_capacity = var.autoscale_max_capacity
+  autoscale_min_capacity = var.autoscale_min_capacity
 }
 
 module "test" {
@@ -93,6 +99,12 @@ module "test" {
   rds_max_capacity        = var.test_rds_max_capacity
   rds_min_capacity        = var.test_rds_min_capacity
   rds_scale_down_time     = var.test_rds_scale_down_time
+
+  desired_tasks          = var.test_desired_tasks
+  enable_autoscale       = var.test_enable_autoscale
+  cpu_target_use         = var.cpu_target_use
+  autoscale_max_capacity = var.autoscale_max_capacity
+  autoscale_min_capacity = var.autoscale_min_capacity
 }
 
 module "prod" {
@@ -125,4 +137,10 @@ module "prod" {
   rds_max_capacity        = var.prod_rds_max_capacity
   rds_min_capacity        = var.prod_rds_min_capacity
   rds_scale_down_time     = var.prod_rds_scale_down_time
+
+  desired_tasks          = var.prod_desired_tasks
+  enable_autoscale       = var.prod_enable_autoscale
+  cpu_target_use         = var.cpu_target_use
+  autoscale_max_capacity = var.autoscale_max_capacity
+  autoscale_min_capacity = var.autoscale_min_capacity
 }
