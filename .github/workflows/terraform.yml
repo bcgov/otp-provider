@@ -105,6 +105,18 @@ jobs:
           TF_VAR_grafana_kc_url=${{ vars.GRAFANA_OAUTH_BASE_URL }}
           TF_VAR_grafana_kc_client_id=${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
           TF_VAR_grafana_kc_client_secret=${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
+
+          TF_VAR_dev_desired_tasks=1
+          TF_VAR_dev_enable_autoscale=true
+          TF_VAR_test_desired_tasks=1
+          TF_VAR_test_enable_autoscale=false
+          TF_VAR_prod_desired_tasks=1
+          TF_VAR_prod_enable_autoscale=false
+
+          TF_VAR_cpu_target_use=15
+          TF_VAR_autoscale_max_capacity=2
+          TF_VAR_autoscale_min_capacity=1
+
           EOF
 
       - name: Set production environment variables
@@ -143,10 +155,10 @@ jobs:
           TF_VAR_prod_app_url=https://otp.loginproxy.gov.bc.ca
           TF_VAR_prod_custom_domain_name=otp.loginproxy.gov.bc.ca
           TF_VAR_prod_cors_origins=https://loginproxy.gov.bc.ca
-          TF_VAR_prod_task_cpu=256
-          TF_VAR_prod_task_memory=512
-          TF_VAR_prod_task_container_cpu=256
-          TF_VAR_prod_task_container_memory=512
+          TF_VAR_prod_task_cpu=512
+          TF_VAR_prod_task_memory=1024
+          TF_VAR_prod_task_container_cpu=512
+          TF_VAR_prod_task_container_memory=1024
           TF_VAR_prod_task_container_port=3000
           TF_VAR_prod_rds_min_capacity=0.5
           TF_VAR_prod_rds_max_capacity=2
@@ -155,6 +167,18 @@ jobs:
           TF_VAR_grafana_kc_url=${{ vars.GRAFANA_OAUTH_BASE_URL }}
           TF_VAR_grafana_kc_client_id=${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
           TF_VAR_grafana_kc_client_secret=${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
+
+          TF_VAR_dev_desired_tasks=1
+          TF_VAR_dev_enable_autoscale=false
+          TF_VAR_test_desired_tasks=1
+          TF_VAR_test_enable_autoscale=false
+          TF_VAR_prod_desired_tasks=2
+          TF_VAR_prod_enable_autoscale=true
+
+          TF_VAR_cpu_target_use=15
+          TF_VAR_autoscale_max_capacity=4
+          TF_VAR_autoscale_min_capacity=2
+
           EOF
 
       - name: Configure AWS credentials

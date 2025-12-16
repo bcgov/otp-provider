@@ -206,3 +206,28 @@ variable "target_group_arn" {
   type        = string
   default     = ""
 }
+
+variable "desired_tasks" {
+  type    = number
+  default = 1
+}
+
+variable "enable_autoscale" {
+  type    = bool
+  default = false
+}
+
+variable "cpu_target_use" {
+  type    = number
+  default = 15
+}
+
+variable "autoscale_max_capacity" {
+  type    = number
+  default = 4
+}
+
+variable "autoscale_min_capacity" {
+  type    = number
+  default = 2
+}
