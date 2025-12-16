@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-test
+spec:
+  template:
+    spec:
+      containers:
+        - name: k6-test
+          imagePullPolicy: Always
+          image: ghcr.io/bcgov/otp-provider/k6-tester:v1
+          args: ['run', '-o', 'timescaledb=<replace-me>', '/scripts/load-test.js']
+          resources:
+            limits:
+              cpu: '1'
+            requests:
+              cpu: '0.5'
+          env:
+            - name: CLIENT_ID
+              value: <replace-me>
+            - name: CLIENT_SECRET
+              value: <replace-me>
+            - name: REDIRECT_URI
+              value: <replace-me>
+            - name: OTP_BASE_URL
+              value: <replace-me>
+            - name: SCENARIO
+              value: <replace-me>
+            - name: RDS_MIN_ACU
+              value: <replace-me>
+            - name: RDS_MAX_ACU
+              value: <replace-me>
+            - name: FARGATE_TASKS
+              value: <replace-me>
+            - name: FARGATE_CPU
+              value: <replace-me>
+            - name: FARGATE_MEM
+              value: <replace-me>
+            - name: TEST_ID
+              value: <replace-me>
+      restartPolicy: Never
+  backoffLimit: 1
