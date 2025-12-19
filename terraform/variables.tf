@@ -61,7 +61,7 @@ variable "dev_task_memory" {
   default     = 512
 }
 
-variable "dev_task_containe_cpu" {
+variable "dev_task_container_cpu" {
   description = "Fargate container CPU for dev"
   type        = number
   default     = 256
@@ -91,7 +91,7 @@ variable "test_task_memory" {
   default     = 512
 }
 
-variable "test_task_containe_cpu" {
+variable "test_task_container_cpu" {
   description = "Fargate container CPU for dev"
   type        = number
   default     = 256
@@ -121,7 +121,7 @@ variable "prod_task_memory" {
   default     = 512
 }
 
-variable "prod_task_containe_cpu" {
+variable "prod_task_container_cpu" {
   description = "Fargate container CPU for dev"
   type        = number
   default     = 256
@@ -321,4 +321,64 @@ variable "autoscale_max_capacity" {
 variable "autoscale_min_capacity" {
   type    = number
   default = 2
+}
+
+variable "dev_use_rba" {
+  type    = string
+  default = "false"
+}
+
+variable "test_use_rba" {
+  type    = string
+  default = "false"
+}
+
+variable "prod_use_rba" {
+  type    = string
+  default = "false"
+}
+
+variable "dev_rba_url" {
+  type    = string
+  default = ""
+}
+
+variable "test_rba_url" {
+  type    = string
+  default = ""
+}
+
+variable "prod_rba_url" {
+  type    = string
+  default = ""
+}
+
+variable "dev_rba_secret" {
+  type    = string
+  default = ""
+}
+
+variable "test_rba_secret" {
+  type    = string
+  default = ""
+}
+
+variable "prod_rba_secret" {
+  type    = string
+  default = ""
+}
+
+variable "dev_rba_key_id" {
+  type    = string
+  default = ""
+}
+
+variable "test_rba_key_id" {
+  type    = string
+  default = ""
+}
+
+variable "prod_rba_key_id" {
+  type    = string
+  default = ""
 }

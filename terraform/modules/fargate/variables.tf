@@ -231,3 +231,25 @@ variable "autoscale_min_capacity" {
   type    = number
   default = 2
 }
+
+variable "use_rba" {
+  type    = string
+  default = "false"
+}
+
+variable "rba_secret" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "rba_key_id" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
+variable "rba_url" {
+  type    = string
+  default = ""
+}

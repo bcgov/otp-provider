@@ -167,6 +167,22 @@ resource "aws_ecs_task_definition" "this" {
         {
           name  = "COOKIE_SECRET",
           value = random_password.cookie_secret4.result
+        },
+        {
+          name  = "USE_RBA"
+          value = var.use_rba
+        },
+        {
+          name  = "RBA_SECRET"
+          value = var.rba_secret
+        },
+        {
+          name  = "RBA_KEY_ID"
+          value = var.rba_key_id
+        },
+        {
+          name  = "RBA_URL"
+          value = var.rba_url
         }
       ]
       secrets = [
@@ -189,12 +205,16 @@ resource "aws_ecs_service" "this" {
   health_check_grace_period_seconds = 60
   wait_for_steady_state             = false
 
-
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
     weight            = 100
   }
 
+  # RBA: need to allow connections into the RBA service connect config when use_rba is true
+  service_connect_configuration {
+    enabled   = var.use_rba
+    namespace = "rba.local"
+  }
 
   network_configuration {
     security_groups  = var.security_group_ids

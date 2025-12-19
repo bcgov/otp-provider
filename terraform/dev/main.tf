@@ -96,4 +96,9 @@ module "fargate" {
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
+
+  use_rba    = var.use_rba
+  rba_secret = var.rba_secret
+  rba_key_id = var.rba_key_id
+  rba_url    = var.rba_url
 }

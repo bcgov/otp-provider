@@ -117,6 +117,11 @@ jobs:
           TF_VAR_autoscale_max_capacity=2
           TF_VAR_autoscale_min_capacity=1
 
+          TF_VAR_dev_use_rba=true
+          TF_VAR_dev_rba_key_id=${{secrets.DEV_RBA_KEY_ID}}
+          TF_VAR_dev_rba_secret=${{secrets.DEV_RBA_SECRET}}
+          TF_VAR_dev_rba_url=${{vars.DEV_RBA_URL}}
+
           EOF
 
       - name: Set production environment variables
