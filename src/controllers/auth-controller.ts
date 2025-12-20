@@ -7,7 +7,7 @@ import { getInteractionById } from '../modules/sequelize/queries/interaction';
 import { LoginTimeoutError } from '../utils/helpers';
 import { errors } from '../modules/errors';
 import { sendFailedAuthEvent } from '../utils/rba';
-import { createEvent } from 'src/modules/sequelize/queries/event';
+import { createEvent } from '../modules/sequelize/queries/event';
 
 export const authorize = async (oidcProvider: Provider) => {
   return async (req: Request, res: Response, next: NextFunction) => {
