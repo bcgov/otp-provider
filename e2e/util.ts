@@ -34,7 +34,7 @@ export const fillOTP = async (otp: string, correctOTP: boolean, page: any) => {
     if (i === 5) {
       if (!correctOTP) await page.waitForURL('**/login');
       else
-        await page.waitForRequest((req) => {
+        await page.waitForRequest((req: any) => {
           return req.url().startsWith(redirectURI);
         });
     }
