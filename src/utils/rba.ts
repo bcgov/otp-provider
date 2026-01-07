@@ -1,22 +1,49 @@
-import crypto from 'crypto';
+import * as client from 'openid-client';
 
-const rbaSecret = process.env.RBA_SECRET;
-const rbaUrl = process.env.RBA_URL;
-const keyID = process.env.RBA_KEY_ID;
+const rbaClientSecret = process.env.RBA_CLIENT_SECRET;
+const rbaAuthUrl = process.env.RBA_AUTH_URL;
+const rbaBaseUrl = process.env.RBA_BASE_URL;
+const rbaClientId = process.env.RBA_CLIENT_ID;
+
+const config: client.Configuration = await client.discovery(
+  new URL(rbaAuthUrl ?? ''),
+  rbaClientId ?? '',
+  rbaClientSecret ?? '',
+);
+
+let tokenSet: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers;
+let tokenRequest: Promise<string | null> | null;
+
+export const fetchRBAToken = async () => {
+  // Request a new token if expiring within 5 seconds
+  if (tokenSet && (tokenSet.expiresIn() ?? 0) > 5) {
+    return tokenSet.access_token;
+  }
+
+  tokenRequest ||= client
+    .clientCredentialsGrant(config)
+    .then((response) => {
+      tokenSet = response;
+      return tokenSet.access_token;
+    })
+    .catch((err) => {
+      console.error(`Error fetching RBA access token: ${err}`);
+      return null;
+    })
+    .finally(() => {
+      tokenRequest = null;
+    });
+
+  return tokenRequest;
+};
 
 export const sendFailedAuthEvent = async (email: string, ip: string) => {
-  const time = String(Math.floor(Date.now() / 1000));
+  if (rbaClientSecret && rbaAuthUrl && rbaClientId && rbaBaseUrl) {
+    const token = await fetchRBAToken();
 
-  if (rbaSecret && rbaUrl && keyID) {
-    const sig = crypto.createHmac('sha256', rbaSecret).update(time).digest('hex');
-
-    const res = await fetch(`${rbaUrl}/event`, {
+    const res = await fetch(`${rbaBaseUrl}/event`, {
       method: 'POST',
-      headers: [
-        ['X-Key-ID', keyID],
-        ['X-Timestamp', time],
-        ['X-Signature', sig],
-      ],
+      headers: [['Authorization', `Bearer ${token}`]],
       body: JSON.stringify({
         event: 'login_failure',
         data: {

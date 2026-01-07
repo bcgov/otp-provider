@@ -173,17 +173,21 @@ resource "aws_ecs_task_definition" "this" {
           value = var.use_rba
         },
         {
-          name  = "RBA_SECRET"
-          value = var.rba_secret
+          name  = "RBA_CLIENT_SECRET"
+          value = var.rba_client_secret
         },
         {
-          name  = "RBA_KEY_ID"
-          value = var.rba_key_id
+          name  = "RBA_CLIENT_ID"
+          value = var.rba_client_id
         },
         {
-          name  = "RBA_URL"
-          value = var.rba_url
-        }
+          name  = "RBA_AUTH_URL"
+          value = var.rba_auth_url
+        },
+        {
+          name  = "RBA_BASE_URL"
+          value = var.rba_base_url
+        },
       ]
       secrets = [
         {

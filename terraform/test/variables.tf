@@ -242,19 +242,24 @@ variable "use_rba" {
   default = "false"
 }
 
-variable "rba_secret" {
+variable "rba_client_secret" {
   type      = string
   default   = ""
   sensitive = true
 }
 
-variable "rba_key_id" {
+variable "rba_client_id" {
   type      = string
   default   = ""
   sensitive = true
 }
 
-variable "rba_url" {
+variable "rba_auth_url" {
+  type    = string
+  default = ""
+}
+
+variable "rba_base_url" {
   type    = string
   default = ""
 }

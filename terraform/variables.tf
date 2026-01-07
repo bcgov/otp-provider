@@ -338,47 +338,62 @@ variable "prod_use_rba" {
   default = "false"
 }
 
-variable "dev_rba_url" {
+variable "dev_rba_auth_url" {
   type    = string
   default = ""
 }
 
-variable "test_rba_url" {
+variable "test_rba_auth_url" {
   type    = string
   default = ""
 }
 
-variable "prod_rba_url" {
+variable "prod_rba_auth_url" {
   type    = string
   default = ""
 }
 
-variable "dev_rba_secret" {
+variable "dev_rba_base_url" {
   type    = string
   default = ""
 }
 
-variable "test_rba_secret" {
+variable "test_rba_base_url" {
   type    = string
   default = ""
 }
 
-variable "prod_rba_secret" {
+variable "prod_rba_base_url" {
   type    = string
   default = ""
 }
 
-variable "dev_rba_key_id" {
+variable "dev_rba_client_secret" {
   type    = string
   default = ""
 }
 
-variable "test_rba_key_id" {
+variable "test_rba_client_secret" {
   type    = string
   default = ""
 }
 
-variable "prod_rba_key_id" {
+variable "prod_rba_client_secret" {
+  type    = string
+  default = ""
+}
+
+variable "dev_rba_client_id" {
+  type    = string
+  default = ""
+}
+
+variable "test_rba_client_id" {
+  type    = string
+  default = ""
+}
+
+variable "prod_rba_client_id" {
   type    = string
   default = ""
 }
