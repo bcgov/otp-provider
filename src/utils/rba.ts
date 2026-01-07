@@ -51,9 +51,6 @@ export const sendFailedAuthEvent = async (email: string, ip: string) => {
           account: email,
         },
       }),
-    }).catch((err) => {
-      console.log(err);
-      throw new Error('bad request');
     });
 
     if (!res.ok) {
