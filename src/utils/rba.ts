@@ -5,11 +5,11 @@ const rbaAuthUrl = process.env.RBA_AUTH_URL;
 const rbaBaseUrl = process.env.RBA_BASE_URL;
 const rbaClientId = process.env.RBA_CLIENT_ID;
 
-const config: client.Configuration = await client.discovery(
-  new URL(rbaAuthUrl ?? ''),
-  rbaClientId ?? '',
-  rbaClientSecret ?? '',
-);
+let config: client.Configuration;
+
+if (process.env.USE_RBA) {
+  config = await client.discovery(new URL(rbaAuthUrl ?? ''), rbaClientId ?? '', rbaClientSecret ?? '');
+}
 
 let tokenSet: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers;
 let tokenRequest: Promise<string | null> | null;
