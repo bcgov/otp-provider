@@ -153,25 +153,33 @@ resource "aws_ecs_task_definition" "this" {
           value = random_password.cookie_secret4.result
         },
         {
-          name  = "USE_RBA"
+          name  = "USE_RBA",
           value = var.use_rba
         },
         {
-          name  = "RBA_CLIENT_SECRET"
+          name  = "RBA_CLIENT_SECRET",
           value = var.rba_client_secret
         },
         {
-          name  = "RBA_CLIENT_ID"
+          name  = "RBA_CLIENT_ID",
           value = var.rba_client_id
         },
         {
-          name  = "RBA_AUTH_URL"
+          name  = "RBA_AUTH_URL",
           value = var.rba_auth_url
         },
         {
-          name  = "RBA_BASE_URL"
+          name  = "RBA_BASE_URL",
           value = var.rba_base_url
         },
+        {
+          name  = "AWS_REGION",
+          value = "ca-central-1"
+        },
+        {
+          name  = "MAIL_FROM",
+          value = "do-not-reply@otp.gov.bc.ca"
+        }
       ]
       secrets = [
         {
