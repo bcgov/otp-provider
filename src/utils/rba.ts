@@ -7,8 +7,12 @@ const rbaClientId = process.env.RBA_CLIENT_ID;
 
 let config: client.Configuration;
 
-if (process.env.USE_RBA) {
-  config = await client.discovery(new URL(rbaAuthUrl ?? ''), rbaClientId ?? '', rbaClientSecret ?? '');
+if (process.env.USE_RBA === 'true') {
+  try {
+    config = await client.discovery(new URL(rbaAuthUrl ?? ''), rbaClientId ?? '', rbaClientSecret ?? '');
+  } catch (e) {
+    console.error('Failed to initialize RBA service account:', e);
+  }
 }
 
 let tokenSet: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers;
