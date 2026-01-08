@@ -10,10 +10,7 @@ interface EmailOptions {
   subject?: string;
 }
 
-export const sendEmail = async (
-  { from = 'do-not-reply@otp.gov.bc.ca', to, body, subject }: EmailOptions,
-  maxRetries = 3,
-) => {
+export const sendEmail = async ({ to, body, subject }: EmailOptions, maxRetries = 3) => {
   try {
     if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
     let attempt = 0;
@@ -21,10 +18,7 @@ export const sendEmail = async (
       throw new Error('to, subject, and body are required');
     }
 
-    const source = from || process.env.MAIL_FROM;
-    if (!source) {
-      throw new Error('Missing from address (MAIL_FROM env or parameter)');
-    }
+    const source = process.env.MAIL_FROM || 'info@sso.gov.bc.ca';
 
     const command = new SendEmailCommand({
       Source: source,

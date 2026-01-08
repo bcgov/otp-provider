@@ -178,7 +178,7 @@ resource "aws_ecs_task_definition" "this" {
         },
         {
           name  = "MAIL_FROM",
-          value = "do-not-reply@otp.gov.bc.ca"
+          value = var.mail_from
         }
       ]
       secrets = [

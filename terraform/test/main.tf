@@ -74,6 +74,7 @@ module "fargate" {
   app_env                     = var.app_env
   node_env                    = var.node_env
   app_url                     = var.app_url
+  mail_from                   = var.mail_from
   tags                        = var.tags
   log_level                   = var.log_level
   db_name                     = var.db_name
