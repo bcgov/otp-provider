@@ -385,3 +385,8 @@ variable "prod_rba_client_id" {
   type    = string
   default = ""
 }
+
+variable "mail_from" {
+  type    = string
+  default = "info@sso.gov.bc.ca"
+}

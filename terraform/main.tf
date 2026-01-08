@@ -49,6 +49,7 @@ module "dev" {
   app_env                 = "development"
   node_env                = "production"
   app_url                 = var.dev_app_url
+  mail_from               = var.mail_from
   cors_origins            = var.dev_cors_origins
   security_group_ids      = [data.aws_security_group.app_sg.id]
   subnet_ids              = [data.aws_subnet.a.id, data.aws_subnet.b.id]
@@ -91,6 +92,7 @@ module "test" {
   app_env                 = "test"
   node_env                = "production"
   app_url                 = var.test_app_url
+  mail_from               = var.mail_from
   cors_origins            = var.test_cors_origins
   security_group_ids      = [data.aws_security_group.app_sg.id]
   subnet_ids              = [data.aws_subnet.a.id, data.aws_subnet.b.id]
@@ -133,6 +135,7 @@ module "prod" {
   app_env                 = "production"
   node_env                = "production"
   app_url                 = var.prod_app_url
+  mail_from               = var.mail_from
   cors_origins            = var.prod_cors_origins
   security_group_ids      = [data.aws_security_group.app_sg.id]
   subnet_ids              = [data.aws_subnet.a.id, data.aws_subnet.b.id]

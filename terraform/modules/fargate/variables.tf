@@ -232,3 +232,8 @@ variable "rba_base_url" {
   type    = string
   default = ""
 }
+
+variable "mail_from" {
+  type    = string
+  default = "info@sso.gov.bc.ca"
+}
