@@ -74,9 +74,6 @@ module "fargate" {
   app_env                     = var.app_env
   node_env                    = var.node_env
   app_url                     = var.app_url
-  ches_username               = var.ches_username
-  ches_password               = var.ches_password
-  ches_api_url                = var.ches_api_url
   tags                        = var.tags
   log_level                   = var.log_level
   db_name                     = var.db_name

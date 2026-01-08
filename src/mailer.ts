@@ -1,74 +1,62 @@
-import axios from 'axios';
-import url from 'url';
-import { config } from './config';
 import logger from './modules/winston.config';
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
-const { CHES_TOKEN_URL, CHES_API_URL, CHES_USERNAME, CHES_PASSWORD } = config;
+const sesClient = new SESClient({ region: process.env.AWS_REGION });
 
 interface EmailOptions {
   from?: string;
   to: string[];
   body: string;
-  bodyType?: string;
-  cc?: string[];
-  bcc?: string[];
-  delayTS?: number;
-  encoding?: string;
-  priority?: 'normal' | 'low' | 'high';
   subject?: string;
-  tag?: string;
 }
 
-// const httpsAgent = new https.Agent({
-//   rejectUnauthorized: false,
-// });
-
-const fetchChesToken = async () => {
-  const params = new url.URLSearchParams({ grant_type: 'client_credentials' });
+export const sendEmail = async (
+  { from = 'do-not-reply@otp.gov.bc.ca', to, body, subject }: EmailOptions,
+  maxRetries = 3,
+) => {
   try {
-    const { data } = await axios.post(CHES_TOKEN_URL, params.toString(), {
-      headers: {
-        'Accept-Encoding': 'application/json',
+    if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
+    let attempt = 0;
+    if (!to || !subject || !body) {
+      throw new Error('to, subject, and body are required');
+    }
+
+    const source = from || process.env.MAIL_FROM;
+    if (!source) {
+      throw new Error('Missing from address (MAIL_FROM env or parameter)');
+    }
+
+    const command = new SendEmailCommand({
+      Source: source,
+      Destination: {
+        ToAddresses: Array.isArray(to) ? to : [to],
       },
-      auth: {
-        username: CHES_USERNAME,
-        password: CHES_PASSWORD,
+      Message: {
+        Subject: {
+          Data: subject,
+          Charset: 'UTF-8',
+        },
+        Body: {
+          Text: {
+            Data: body,
+            Charset: 'UTF-8',
+          },
+        },
       },
     });
 
-    const { access_token } = data as { access_token: string };
-    return [access_token, null];
-  } catch (err) {
-    return [null, err];
-  }
-};
-
-export const sendEmail = async ({ from = 'no-reply-sso@gov.bc.ca', to, body, ...rest }: EmailOptions) => {
-  try {
-    if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
-    const [accessToken, error] = await fetchChesToken();
-    if (error) {
-      throw new Error('unable to fetch ches token');
+    while (attempt < maxRetries) {
+      try {
+        const result = await sesClient.send(command);
+        return result.MessageId;
+      } catch (error) {
+        attempt++;
+        logger.warn(`Email send attempt ${attempt} failed: ${error}`);
+        if (attempt >= maxRetries) {
+          throw new Error(`Failed to send email after ${maxRetries} attempts`);
+        }
+      }
     }
-
-    const res = await axios.post(
-      CHES_API_URL,
-      {
-        // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options
-        bodyType: 'html',
-        body,
-        encoding: 'utf-8',
-        from,
-        priority: 'normal',
-        subject: 'CHES Email Message',
-        to,
-        ...rest,
-      },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      },
-    );
-    return res;
   } catch (err) {
     logger.error(err);
   }

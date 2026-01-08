@@ -31,6 +31,30 @@ EOF
   tags = var.tags
 }
 
+resource "aws_iam_policy" "ses_send_email" {
+  name        = "SesSendEmailPolicy"
+  description = "Allow sending email via Amazon SES from ECS tasks"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowSesSend"
+        Effect = "Allow"
+        Action = [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "otp_task_role_attach_ses" {
+  role       = aws_iam_role.otp_task_role.name
+  policy_arn = aws_iam_policy.ses_send_email.arn
+}
+
 resource "aws_iam_role_policy" "otp_task_execution_cwlogs" {
   name = "OTPProviderLogsPolicy"
   role = aws_iam_role.otp_task_execution_role.id
