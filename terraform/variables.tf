@@ -37,18 +37,6 @@ variable "tags" {
   }
 }
 
-variable "ches_username" {
-  description = "CHES service username"
-  type        = string
-  default     = ""
-}
-
-variable "ches_password" {
-  description = "CHES service password"
-  type        = string
-  default     = ""
-}
-
 variable "dev_task_cpu" {
   description = "Fargate task CPU for dev"
   type        = number

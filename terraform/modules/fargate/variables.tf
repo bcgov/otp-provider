@@ -58,32 +58,6 @@ variable "node_env" {
   default     = "development"
 }
 
-variable "ches_username" {
-  type        = string
-  description = "CHES account username"
-  default     = ""
-  sensitive   = true
-}
-
-variable "ches_password" {
-  type        = string
-  description = "CHES account password"
-  default     = ""
-  sensitive   = true
-}
-
-variable "ches_api_url" {
-  type        = string
-  description = "CHES API url"
-  default     = "https://ches.api.gov.bc.ca/api/v1/email"
-}
-
-variable "ches_token_url" {
-  type        = string
-  description = "CHES token url"
-  default     = "https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
-}
-
 variable "app_url" {
   type        = string
   description = "App url"

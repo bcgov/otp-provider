@@ -93,22 +93,6 @@ resource "aws_ecs_task_definition" "this" {
           value = var.app_url
         },
         {
-          name  = "CHES_USERNAME",
-          value = var.ches_username
-        },
-        {
-          name  = "CHES_PASSWORD",
-          value = var.ches_password
-        },
-        {
-          name  = "CHES_API_URL",
-          value = var.ches_api_url
-        },
-        {
-          name  = "CHES_TOKEN_URL",
-          value = var.ches_token_url
-        },
-        {
           name  = "LOG_LEVEL",
           value = var.log_level
         },
