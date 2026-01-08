@@ -6,6 +6,8 @@ import { sendEmail } from '../mailer';
 import { getInteractionById } from '../modules/sequelize/queries/interaction';
 import { LoginTimeoutError } from '../utils/helpers';
 import { errors } from '../modules/errors';
+import { sendFailedAuthEvent } from '../utils/rba';
+import { createEvent } from '../modules/sequelize/queries/event';
 
 export const authorize = async (oidcProvider: Provider) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -145,6 +147,16 @@ export const login = async (oidcProvider: Provider) => {
         if (error) {
           // Expiry page has a customized view, all others use the default.
           const view = error === 'EXPIRED_OTP' ? 'expired' : 'otp';
+
+          if (process.env.USE_RBA === 'true' && error === 'INVALID_OTP' && req.ip) {
+            const score = await sendFailedAuthEvent(email, req.ip).catch((err: any) =>
+              console.log(`error calling RBA module: ${err}`),
+            );
+            if (score?.risk === 1) {
+              await createEvent({ eventType: 'RISK_THRESHOLD_CROSSED', clientId: clientID as string, email });
+            }
+          }
+
           return res.render(view, {
             uid,
             email,

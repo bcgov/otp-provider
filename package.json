@@ -29,6 +29,7 @@
     "lodash.isempty": "^4.4.0",
     "node-cron": "^4.1.0",
     "oidc-provider": "^8.8.1",
+    "openid-client": "^6.8.1",
     "pg": "^8.16.0",
     "sequelize": "^6.37.7",
     "umzug": "^3.8.2",

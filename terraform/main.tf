@@ -42,7 +42,7 @@ module "dev" {
 
   task_cpu                = var.dev_task_cpu
   task_memory             = var.dev_task_memory
-  container_cpu           = var.dev_task_containe_cpu
+  container_cpu           = var.dev_task_container_cpu
   container_memory        = var.dev_task_container_memory
   container_port          = var.dev_task_container_port
   awslogs-group           = "${var.otp_cwlogs_group}-dev"
@@ -67,6 +67,12 @@ module "dev" {
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
+
+  use_rba           = var.dev_use_rba
+  rba_client_id     = var.dev_rba_client_id
+  rba_client_secret = var.dev_rba_client_secret
+  rba_auth_url      = var.dev_rba_auth_url
+  rba_base_url      = var.dev_rba_base_url
 }
 
 module "test" {
@@ -80,7 +86,7 @@ module "test" {
 
   task_cpu                = var.test_task_cpu
   task_memory             = var.test_task_memory
-  container_cpu           = var.test_task_containe_cpu
+  container_cpu           = var.test_task_container_cpu
   container_memory        = var.test_task_container_memory
   container_port          = var.test_task_container_port
   awslogs-group           = "${var.otp_cwlogs_group}-test"
@@ -105,6 +111,12 @@ module "test" {
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
+
+  use_rba           = var.test_use_rba
+  rba_client_id     = var.test_rba_client_id
+  rba_client_secret = var.test_rba_client_secret
+  rba_auth_url      = var.test_rba_auth_url
+  rba_base_url      = var.test_rba_base_url
 }
 
 module "prod" {
@@ -118,7 +130,7 @@ module "prod" {
 
   task_cpu                = var.prod_task_cpu
   task_memory             = var.prod_task_memory
-  container_cpu           = var.prod_task_containe_cpu
+  container_cpu           = var.prod_task_container_cpu
   container_memory        = var.prod_task_container_memory
   container_port          = var.prod_task_container_port
   awslogs-group           = "${var.otp_cwlogs_group}-prod"
@@ -143,4 +155,10 @@ module "prod" {
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
+
+  use_rba           = var.prod_use_rba
+  rba_client_id     = var.prod_rba_client_id
+  rba_client_secret = var.prod_rba_client_secret
+  rba_auth_url      = var.prod_rba_auth_url
+  rba_base_url      = var.prod_rba_base_url
 }
