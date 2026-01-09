@@ -65,7 +65,7 @@ jobs:
           TF_VAR_subnet_b=Dev-App-B
 
           TF_VAR_dev_app_url=https://dev.sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_mail_from=info@sso.gov.bc.ca
+          TF_VAR_mail_from=bcgov.sso@gov.bc.ca
           TF_VAR_dev_custom_domain_name=dev.sandbox.otp.loginproxy.gov.bc.ca
           TF_VAR_dev_cors_origins=https://dev.sandbox.loginproxy.gov.bc.ca
           TF_VAR_dev_task_cpu=256

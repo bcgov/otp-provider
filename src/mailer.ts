@@ -18,7 +18,7 @@ export const sendEmail = async ({ to, body, subject }: EmailOptions, maxRetries 
       throw new Error('to, subject, and body are required');
     }
 
-    const source = process.env.MAIL_FROM || 'info@sso.gov.bc.ca';
+    const source = process.env.MAIL_FROM || 'bcgov.sso@gov.bc.ca';
 
     const command = new SendEmailCommand({
       Source: source,
