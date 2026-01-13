@@ -41,7 +41,7 @@ export const fetchRBAToken = async () => {
   return tokenRequest;
 };
 
-export const sendFailedAuthEvent = async (email: string, ip: string) => {
+export const sendRBAEvent = async (email: string, ip: string, event: 'login' | 'login_failure') => {
   if (rbaClientSecret && rbaAuthUrl && rbaClientId && rbaBaseUrl) {
     const token = await fetchRBAToken();
 
@@ -49,7 +49,7 @@ export const sendFailedAuthEvent = async (email: string, ip: string) => {
       method: 'POST',
       headers: [['Authorization', `Bearer ${token}`]],
       body: JSON.stringify({
-        event: 'login_failure',
+        event,
         data: {
           ip: ip,
           account: email,

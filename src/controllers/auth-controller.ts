@@ -6,7 +6,7 @@ import { sendEmail } from '../mailer';
 import { getInteractionById } from '../modules/sequelize/queries/interaction';
 import { LoginTimeoutError } from '../utils/helpers';
 import { errors } from '../modules/errors';
-import { sendFailedAuthEvent } from '../utils/rba';
+import { sendRBAEvent } from '../utils/rba';
 import { createEvent } from '../modules/sequelize/queries/event';
 
 export const authorize = async (oidcProvider: Provider) => {
@@ -149,8 +149,8 @@ export const login = async (oidcProvider: Provider) => {
           const view = error === 'EXPIRED_OTP' ? 'expired' : 'otp';
 
           if (process.env.USE_RBA === 'true' && error === 'INVALID_OTP' && req.ip) {
-            const score = await sendFailedAuthEvent(email, req.ip).catch((err: any) =>
-              console.log(`error calling RBA module: ${err}`),
+            const score = await sendRBAEvent(email, req.ip, 'login_failure').catch((err: any) =>
+              console.error(`error calling RBA module: ${err}`),
             );
             if (score?.risk === 1) {
               await createEvent({ eventType: 'RISK_THRESHOLD_CROSSED', clientId: clientID as string, email });
@@ -169,6 +169,14 @@ export const login = async (oidcProvider: Provider) => {
           });
         }
 
+        if (process.env.USE_RBA === 'true' && req.ip) {
+          const score = await sendRBAEvent(email, req.ip, 'login').catch((err: any) =>
+            console.error(`error calling RBA module: ${err}`),
+          );
+          if (score?.risk === 1) {
+            await createEvent({ eventType: 'RISK_THRESHOLD_CROSSED', clientId: clientID as string, email });
+          }
+        }
         const result = {
           login: {
             accountId: email,
