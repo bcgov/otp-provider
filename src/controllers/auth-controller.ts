@@ -4,7 +4,7 @@ import { getOtpWaitTime, requestOtp, verifyOtp } from '../services/otp';
 import { emailValidator, otpValidator } from '../utils/shared';
 import { sendEmail } from '../mailer';
 import { getInteractionById } from '../modules/sequelize/queries/interaction';
-import { LoginTimeoutError } from '../utils/helpers';
+import { LoginTimeoutError, parseForwardedHeader } from '../utils/helpers';
 import { errors } from '../modules/errors';
 import { sendRBAEvent } from '../utils/rba';
 import { createEvent } from '../modules/sequelize/queries/event';
@@ -116,6 +116,8 @@ export const login = async (oidcProvider: Provider) => {
       if (req.params?.uid && (await isInteractionSessionExpired(String(req.params?.uid))))
         throw new LoginTimeoutError();
 
+      const forwardedHeaders = parseForwardedHeader(req.headers.forwarded);
+
       const {
         uid,
         prompt: { name },
@@ -148,8 +150,8 @@ export const login = async (oidcProvider: Provider) => {
           // Expiry page has a customized view, all others use the default.
           const view = error === 'EXPIRED_OTP' ? 'expired' : 'otp';
 
-          if (process.env.USE_RBA === 'true' && error === 'INVALID_OTP' && req.ip) {
-            const score = await sendRBAEvent(email, req.ip, 'login_failure').catch((err: any) =>
+          if (process.env.USE_RBA === 'true' && error === 'INVALID_OTP' && forwardedHeaders.for) {
+            const score = await sendRBAEvent(email, forwardedHeaders.for, 'login_failure').catch((err: any) =>
               console.error(`error calling RBA module: ${err}`),
             );
             if (score?.risk === 1) {
@@ -169,8 +171,8 @@ export const login = async (oidcProvider: Provider) => {
           });
         }
 
-        if (process.env.USE_RBA === 'true' && req.ip) {
-          const score = await sendRBAEvent(email, req.ip, 'login').catch((err: any) =>
+        if (process.env.USE_RBA === 'true' && forwardedHeaders.for) {
+          const score = await sendRBAEvent(email, forwardedHeaders.for, 'login').catch((err: any) =>
             console.error(`error calling RBA module: ${err}`),
           );
           if (score?.risk === 1) {

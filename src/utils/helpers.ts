@@ -39,3 +39,18 @@ export class LoginTimeoutError extends Error {
     Object.setPrototypeOf(this, LoginTimeoutError.prototype);
   }
 }
+
+/*
+  AWS API Gateway puts upstream connection headers in the forwarded header, in the format for=<public-ip>;host=<host>;....
+  This function parses out parts and returns as an object.
+*/
+export function parseForwardedHeader(header?: string) {
+  if (!header) return {};
+
+  return Object.fromEntries(
+    header.split(';').map((part) => {
+      const [k, v] = part.split('=');
+      return [k.trim(), v?.replace(/"/g, '')];
+    }),
+  );
+}
