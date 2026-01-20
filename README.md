@@ -65,6 +65,21 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 5. Run `yarn start` to run the javascript bundle
 6. Run `yarn tailwind` to compile the css (will hot reload)
 
+## AWS Simple Email Service
+
+### Setup
+
+- Create a tenant `otp`
+- Create an email identity under the tenant and complete verification
+- Create a domain identity under the tenant and request right person from `Digital Workplace and Collaboration Services Branch` to get the DKIM, DMARC and custom MAIL FROM CNAME records in NNR
+- Ensure all the records are successfully verified and then request production access. The production access requires below details:
+  - Mail Type: `TRANSACTIONAL`
+  - Website URL: `*/.well-known/openid-configuration`
+  - Usecase Description: One time passcode identity provider
+- Enable `Virtual Deliverability Manager` with click tracking disabled. The click tracking adds 1 X 1 pixel image to every email sent to users and most of the email providers display a warning on top of the email so we had to disable it
+- (Optional) Create a configuration set to override any settings pertaining to reputation metrics, suppression list, auto validation, archiving options. Assign it to the tenant
+- The OTP provider running as an ECS Task requires appropriate IAM permissions added to its Task Role for it to able to send emails. Permissions include `sendEmail` and `sendRawEmail`
+
 ## Local Env
 
 The app runs locally using tsup to compile the server and client files into the `build` directory. To recompile the css on the fly, run `yarn tailwind` in another terminal.
