@@ -78,7 +78,7 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
   - Usecase Description: One time passcode identity provider
 - Enable `Virtual Deliverability Manager` with click tracking disabled. The click tracking adds 1 X 1 pixel image to every email sent to users and most of the email providers display a warning on top of the email so we had to disable it
 - (Optional) Create a configuration set to override any settings pertaining to reputation metrics, suppression list, auto validation, archiving options. Assign it to the tenant
-- The OTP provider running as an ECS Task requires appropriate IAM permissions added to its Task Role for it to able to send emails. Permissions include `sendEmail` and `sendRawEmail`
+- The OTP provider running as an ECS Task requires appropriate IAM permissions added to its Task Role for it to be able to send emails. Permissions include `sendEmail` and `sendRawEmail`
 
 ## Local Env
 
