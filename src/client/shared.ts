@@ -14,9 +14,11 @@ export const countdown = (cooldownPeriod: number, waitTimeElement: HTMLElement, 
     const timeLeft = cooldownPeriod - elapsedTime;
     if (timeLeft <= 0) {
       if (countdownInterval) clearInterval(countdownInterval);
+      waitTimeElement.textContent = String(0);
       onComplete();
+    } else {
+      waitTimeElement.textContent = String(timeLeft);
     }
-    waitTimeElement.textContent = String(timeLeft);
   }, 1000);
 };
 
