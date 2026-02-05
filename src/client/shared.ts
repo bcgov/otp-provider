@@ -1,21 +1,24 @@
 /**
  * Function to add a countdown timer on the resend code message.
- * @param cooldownPeriod The amount of time to countdown
+ * @param cooldownPeriod The amount of time to countdown in seconds
  * @param waitTimeElement HTML element to update timer
  * @param onComplete Callback function called when countdown ends
  * @returns void
  */
 export const countdown = (cooldownPeriod: number, waitTimeElement: HTMLElement, onComplete: () => void) => {
   if (cooldownPeriod <= 0) return;
-  let currentTime = cooldownPeriod;
+  const initialTime = Date.now();
 
   const countdownInterval = setInterval(() => {
-    currentTime -= 1;
-    if (currentTime === 0) {
+    const elapsedTime = Math.round((Date.now() - initialTime) / 1000);
+    const timeLeft = cooldownPeriod - elapsedTime;
+    if (timeLeft <= 0) {
       if (countdownInterval) clearInterval(countdownInterval);
+      waitTimeElement.textContent = String(0);
       onComplete();
+    } else {
+      waitTimeElement.textContent = String(timeLeft);
     }
-    waitTimeElement.textContent = String(currentTime);
   }, 1000);
 };
 
