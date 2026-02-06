@@ -88,3 +88,10 @@ export const clearFormError = (errorEl: HTMLElement, submitButton?: HTMLButtonEl
     if (cautionImg) cautionImg.remove();
   }
 };
+
+// free use spinner from https://loading.io/css/
+export const appendSpinner = (parentEl: HTMLElement, msg: string) => {
+  const el = document.createElement('div');
+  el.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>${msg}`;
+  parentEl.appendChild(el);
+};
