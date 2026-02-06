@@ -27,15 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     submitting = true;
-
-    // Set loading style and message
-    digitInputs.forEach((input) => input.classList.add('text-gray-500'));
-    const msgBox = document.getElementById('otp-error') as HTMLElement | null;
-    if (msgBox) {
-      msgBox.classList.add('italic', 'text-center', 'text-gray-500');
-      appendSpinner(msgBox, 'verifying');
-    }
-
     const codes = digitInputs.map((input) => input.value).filter((val) => val !== '');
     const [, error] = otpValidator(codes);
     if (error) {
@@ -46,7 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
       else digitInputs[0].focus();
     } else {
       form.submit();
-      digitInputs.forEach((input) => (input.disabled = true));
+      // Set submitting styles
+      digitInputs.forEach((input) => {
+        input.classList.add('text-gray-500');
+        input.disabled = true;
+      });
+      const msgBox = document.getElementById('otp-error');
+      if (msgBox) {
+        msgBox.classList.add('italic', 'text-center', 'text-gray-500');
+        appendSpinner(msgBox, 'verifying');
+      }
     }
   });
 
