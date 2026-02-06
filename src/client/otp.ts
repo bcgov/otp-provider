@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     digitInputs.forEach((input) => input.classList.add('text-gray-500'));
     const msgBox = document.getElementById('otp-error') as HTMLElement | null;
     if (msgBox) {
-      msgBox.classList.add('italic', 'text-center', 'min-w-50', 'text-gray-500');
+      msgBox.classList.add('italic', 'text-center', 'text-gray-500');
       appendSpinner(msgBox, 'verifying');
     }
 

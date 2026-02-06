@@ -60,22 +60,22 @@
   color: currentColor;
   display: inline-block;
   position: relative;
-  width: calc(10px * 1.8);
-  height: calc(10px * 1.8);
+  width: calc(10px * 1.5);
+  height: calc(10px * 1.5);
   top: 2px;
 }
 .lds-spinner div {
-  transform-origin: calc(5px * 1.8) calc(5px * 1.8);
+  transform-origin: calc(5px * 1.5) calc(5px * 1.5);
   animation: lds-spinner 1.2s linear infinite;
 }
 .lds-spinner div:after {
   content: ' ';
   display: block;
   position: absolute;
-  top: calc(0.4px * 1.8);
-  left: calc(4.6px * 1.8);
-  width: calc(0.8px * 1.8);
-  height: calc(2.2px * 1.8);
+  top: calc(0.4px * 1.5);
+  left: calc(4.6px * 1.5);
+  width: calc(0.8px * 1.5);
+  height: calc(2.2px * 1.5);
   border-radius: 20%;
   background: currentColor;
 }
