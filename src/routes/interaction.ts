@@ -1,9 +1,10 @@
 import express, { NextFunction, Request, Response, urlencoded } from 'express';
 import Provider from 'oidc-provider';
 import { authorize, generateOtp, login, abortLogin } from '../controllers/auth-controller';
-import { LoginTimeoutError, setNoCache } from '../utils/helpers';
+import { LoginTimeoutError, parseForwardedHeader, setNoCache } from '../utils/helpers';
 import { errors } from 'oidc-provider';
 import logger from '../modules/winston.config';
+import { UAParser } from 'ua-parser-js';
 
 const body = urlencoded({ extended: false });
 
@@ -15,7 +16,16 @@ export const oidcRouter = async (oidcProvider: Provider) => {
   oidcRouter.post('/:uid/abort', await abortLogin(oidcProvider));
   oidcRouter.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err) {
-      logger.error('OIDC interaction error:', err);
+      try {
+        const ua = UAParser(req.headers['user-agent']);
+        const forwardedHeaders = parseForwardedHeader(req.headers.forwarded);
+        logger.error(
+          'OIDC interaction error:',
+          Object.assign(err, { ipAddr: forwardedHeaders.for, userAgent: ua, path: req.path }),
+        );
+      } catch {
+        logger.error('OIDC interaction error:', err);
+      }
       let errorMessage = 'An unexpected error occurred';
       let errorStatus = 500;
       if (err instanceof LoginTimeoutError) {
