@@ -33,6 +33,7 @@
     "openid-client": "^6.8.1",
     "pg": "^8.16.0",
     "sequelize": "^6.37.7",
+    "ua-parser-js": "^2.0.9",
     "umzug": "^3.8.2",
     "uuid": "^11.1.0",
     "winston": "^3.17.0"
