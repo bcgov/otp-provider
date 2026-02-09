@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const msgBox = document.getElementById('otp-error');
       if (msgBox) {
         msgBox.classList.add('italic', 'text-center', 'text-gray-500');
-        appendSpinner(msgBox, 'verifying');
+        appendSpinner(msgBox, 'Verifying');
       }
     }
   });
