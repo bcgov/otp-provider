@@ -1,5 +1,5 @@
 import { errors, otpValidator, otpValidDigits } from 'src/utils/shared';
-import { countdown, createResendCodeForm, getUID, clearFormError, setFormError } from './shared';
+import { countdown, createResendCodeForm, getUID, clearFormError, setFormError, appendSpinner } from './shared';
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('otp-form') as HTMLFormElement;
@@ -37,7 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
       else digitInputs[0].focus();
     } else {
       form.submit();
-      digitInputs.forEach((input) => (input.disabled = true));
+      // Set submitting styles
+      digitInputs.forEach((input) => {
+        input.classList.add('text-gray-500');
+        input.disabled = true;
+      });
+      const msgBox = document.getElementById('otp-error');
+      if (msgBox) {
+        msgBox.classList.add('italic', 'text-center', 'text-gray-500');
+        appendSpinner(msgBox, 'Verifying');
+      }
     }
   });
 

@@ -13,7 +13,7 @@
                 <input <% if (i === 1) { %> autofocus <% } %> class="text-center border border-light-grey border-1 p-2 rounded-[4px] font-bold text-lg w-34 h-56" type="text" pattern="\d*" name="code<%= i %>" inputmode="numeric" pattern="[0-9]*" <% if (disableForm) { %> disabled <% } %> maxlength="1" required id="code-digit-<%= i %>" aria-label="Digit <%= i %>">
                 <% } %>
               </div>
-              <span id="otp-error" class="text-danger min-h-20 py-12" data-wait-time="<%= waitTime %>">
+              <span id="otp-error" class="text-danger min-h-20 text-sm mt-2" data-wait-time="<%= waitTime %>">
                 <% if (error) { %>
                 <%= error %>
                 <% } %>
