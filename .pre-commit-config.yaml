@@ -36,7 +36,7 @@ repos:
   - repo: local
     hooks:
       - id: npm-audit
-        name: Run yarn audit
+        name: Run package audit
         # flags on high and critical
         entry: npx audit-ci --high
         language: node
