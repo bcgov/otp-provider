@@ -84,11 +84,13 @@ test('Retry code event', async ({ page }, testInfo) => {
 
   for (let i = 0; i <= Number(config.OTP_ATTEMPTS_ALLOWED); i++) {
     await fillOTP(wrongOTP, false, page);
-    await page.waitForSelector('#otp-error');
-    invalidOtpEvents = await eventModel.findAll({ where: { eventType: 'INVALID_OTP', email, clientId } });
-    expect(invalidOtpEvents.length).toBe(i + 1);
 
-    if (i === Number(config.OTP_ATTEMPTS_ALLOWED)) {
+    if (i < Number(config.OTP_ATTEMPTS_ALLOWED)) {
+      await expect(page.locator('#otp-error')).toContainText('Invalid code');
+      invalidOtpEvents = await eventModel.findAll({ where: { eventType: 'INVALID_OTP', email, clientId } });
+      expect(invalidOtpEvents.length).toBe(i + 1);
+    } else {
+      await expect(page.locator('#otp-error')).toContainText("You've tried too many times");
       maxAttemptsEvents = await eventModel.findAll({ where: { eventType: 'MAX_ATTEMPTS', email, clientId } });
       expect(maxAttemptsEvents.length).toBe(1);
     }
