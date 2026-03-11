@@ -5,6 +5,9 @@ on:
     branches:
       - dev
 
+permissions:
+  contents: read
+
 jobs:
   otp-provider-test:
     runs-on: ubuntu-24.04
