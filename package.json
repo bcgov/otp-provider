@@ -15,7 +15,7 @@
     "tailwind": "npx @tailwindcss/cli -i ./src/public/css/main.css -o ./src/public/css/output.css --minify --watch"
   },
   "dependencies": {
-    "@aws-sdk/client-ses": "^3.1032.0",
+    "@aws-sdk/client-ses": "^3.1001.0",
     "axios": "^1.13.6",
     "compression": "^1.8.1",
     "cors": "^2.8.6",
