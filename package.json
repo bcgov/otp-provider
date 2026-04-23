@@ -72,6 +72,7 @@
     "typescript": "^5.9.3"
   },
   "resolutions": {
-    "picomatch": ">=2.3.2"
+    "picomatch": ">=2.3.2",
+    "fast-xml-parser": ">=5.5.6"
   }
 }
