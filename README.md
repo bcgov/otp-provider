@@ -59,11 +59,13 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 ### Steps
 
 1. Create `.env` from `.env.example` and update all the values
-2. Run `yarn` to install all the dependencies
-3. Run `yarn dev` to start a local server
-4. Run `yarn build` to create a javascript bundle for production deployment
-5. Run `yarn start` to run the javascript bundle
-6. Run `yarn tailwind` to compile the css (will hot reload)
+2. Generate a local `JWKS={}` env variable for the `.env` file using the the script in the [./jwks-generator](./jwks-generator/) folder.
+3. Run `yarn` to install all the dependencies
+4. Run `yarn tailwind` on first build of project otherwise yarn build will fail due to missing css files.
+5. Run `yarn dev` to start a local server
+6. Run `yarn build` to create a javascript bundle for production deployment
+7. Run `yarn start` to run the javascript bundle
+8. Run `yarn tailwind` to compile the css (will hot reload)
 
 ## AWS Simple Email Service
 
@@ -83,6 +85,16 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 ## Local Env
 
 The app runs locally using tsup to compile the server and client files into the `build` directory. To recompile the css on the fly, run `yarn tailwind` in another terminal.
+
+## Local Unit tests
+
+The local tests are built and run using:
+
+`make test_db`
+
+and
+
+`make unit_test`
 
 ## Test Data
 
@@ -141,7 +153,7 @@ End to end testing is done with playwright. As prerequisite the end-to-end tests
 
 - `psql -c 'create database otp_test'`;
 - `yarn build && DB_NAME=otp_test node build/migrate.js`
-- `psql -d otp_test -f e2e/seed.sql`
+- `psql -U postgres -d otp_test -f e2e/seed.sql`
 
 This is only needed the first time to initialize the db. To run the tests run `yarn test:e2e`
 
