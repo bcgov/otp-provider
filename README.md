@@ -86,6 +86,16 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 
 The app runs locally using tsup to compile the server and client files into the `build` directory. To recompile the css on the fly, run `yarn tailwind` in another terminal.
 
+## Local Unit tests
+
+The local tests are built and run using:
+
+`make test_db`
+
+and
+
+`make unit_test`
+
 ## Test Data
 
 - Given the application and database are up and database migration is successfully complete, run below SQL to add a client for testing purposes.
