@@ -1,5 +1,10 @@
+import axios from 'axios';
 import logger from './modules/winston.config';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
+import url from 'node:url';
+import { config } from './config';
+
+const { EMAIL_PROVIDER, CHES_TOKEN_URL, CHES_API_URL, CHES_USERNAME, CHES_PASSWORD, MAIL_FROM } = config;
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
 
@@ -7,10 +12,17 @@ interface EmailOptions {
   from?: string;
   to: string[];
   body: string;
+  bodyType?: string;
+  cc?: string[];
+  bcc?: string[];
+  delayTS?: number;
+  encoding?: string;
+  priority?: 'normal' | 'low' | 'high';
   subject?: string;
+  tag?: string;
 }
 
-export const sendEmail = async ({ to, body, subject }: EmailOptions, maxRetries = 3) => {
+export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, maxRetries = 3) => {
   try {
     if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
     let attempt = 0;
@@ -18,10 +30,92 @@ export const sendEmail = async ({ to, body, subject }: EmailOptions, maxRetries 
       throw new Error('to, subject, and body are required');
     }
 
-    const source = process.env.MAIL_FROM || 'bcgov.sso@gov.bc.ca';
+    const from = MAIL_FROM;
 
+    while (attempt < maxRetries) {
+      try {
+        switch (EMAIL_PROVIDER) {
+          case 'ches':
+            await sendEmailThroughChes({ from, to, subject, body, ...rest });
+            break;
+          case 'ses':
+            await sendEmailThroughSES({ from, to, subject, body });
+            break;
+          default:
+            throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`);
+        }
+        break; // success, exit the retry loop
+      } catch (error) {
+        attempt++;
+        logger.error(`Email send attempt ${attempt} failed: ${error}`);
+        if (attempt >= maxRetries) {
+          throw new Error(`Failed to send email after ${maxRetries} attempts`);
+        }
+      }
+    }
+  } catch (err) {
+    logger.error('Failed to send email:', err);
+  }
+};
+
+const getChesToken = async () => {
+  const params = new url.URLSearchParams({ grant_type: 'client_credentials' });
+  try {
+    const { data } = await axios.post(CHES_TOKEN_URL, params.toString(), {
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      auth: {
+        username: CHES_USERNAME,
+        password: CHES_PASSWORD,
+      },
+    });
+
+    const { access_token } = data as { access_token: string };
+    return [access_token, null];
+  } catch (err) {
+    return [null, err];
+  }
+};
+
+export const sendEmailThroughChes = async (email: EmailOptions) => {
+  const { from, to, subject, body, ...rest } = email;
+  try {
+    const [accessToken, error] = await getChesToken();
+    if (error) {
+      throw new Error('unable to fetch ches token');
+    }
+
+    const res = await axios.post(
+      CHES_API_URL,
+      {
+        // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options
+        bodyType: 'html',
+        body,
+        encoding: 'utf-8',
+        from,
+        priority: 'normal',
+        subject: subject || 'CHES Email Message',
+        to,
+        ...rest,
+      },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+    return res;
+  } catch (err) {
+    logger.error('Error sending email through CHES:', err);
+    throw err;
+  }
+};
+
+export const sendEmailThroughSES = async (email: EmailOptions) => {
+  const { from, to, subject, body } = email;
+  try {
     const command = new SendEmailCommand({
-      Source: source,
+      Source: from,
       Destination: {
         ToAddresses: Array.isArray(to) ? to : [to],
       },
@@ -39,19 +133,10 @@ export const sendEmail = async ({ to, body, subject }: EmailOptions, maxRetries 
       },
     });
 
-    while (attempt < maxRetries) {
-      try {
-        const result = await sesClient.send(command);
-        return result.MessageId;
-      } catch (error) {
-        attempt++;
-        logger.warn(`Email send attempt ${attempt} failed: ${error}`);
-        if (attempt >= maxRetries) {
-          throw new Error(`Failed to send email after ${maxRetries} attempts`);
-        }
-      }
-    }
+    const result = await sesClient.send(command);
+    return result.MessageId;
   } catch (err) {
-    logger.error(err);
+    logger.error('Error sending email through SES:', err);
+    throw err;
   }
 };

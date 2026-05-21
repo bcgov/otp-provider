@@ -6,8 +6,6 @@ import { sendEmail } from '../mailer';
 import { getInteractionById } from '../modules/sequelize/queries/interaction';
 import { LoginTimeoutError, parseForwardedHeader } from '../utils/helpers';
 import { errors } from '../modules/errors';
-import { sendRBAEvent } from '../utils/rba';
-import { createEvent } from '../modules/sequelize/queries/event';
 
 export const authorize = async (oidcProvider: Provider) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -99,7 +97,7 @@ export const generateOtp = async (oidcProvider: Provider) => {
           error: '',
           nonce: res.locals.cspNonce,
           waitTime,
-          disableResend: waitTime === -1 ? true : false,
+          disableResend: waitTime === -1,
           disableForm: false,
           disableResendError: waitTime === -1 ? errors['OTPS_LIMIT_REACHED'] : '',
         });
@@ -115,8 +113,6 @@ export const login = async (oidcProvider: Provider) => {
     try {
       if (req.params?.uid && (await isInteractionSessionExpired(String(req.params?.uid))))
         throw new LoginTimeoutError();
-
-      const forwardedHeaders = parseForwardedHeader(req.headers.forwarded);
 
       const {
         uid,
@@ -138,7 +134,7 @@ export const login = async (oidcProvider: Provider) => {
             email,
             nonce: res.locals.cspNonce,
             waitTime,
-            disableResend: waitTime === -1 ? true : false,
+            disableResend: waitTime === -1,
             disableForm: false,
             error: otpError,
             disableResendError: waitTime === -1 ? errors['OTPS_LIMIT_REACHED'] : '',
@@ -150,35 +146,18 @@ export const login = async (oidcProvider: Provider) => {
           // Expiry page has a customized view, all others use the default.
           const view = error === 'EXPIRED_OTP' ? 'expired' : 'otp';
 
-          if (process.env.USE_RBA === 'true' && error === 'INVALID_OTP' && forwardedHeaders.for) {
-            const score = await sendRBAEvent(email, forwardedHeaders.for, 'login_failure').catch((err: any) =>
-              console.error(`error calling RBA module: ${err}`),
-            );
-            if (score?.risk === 1) {
-              await createEvent({ eventType: 'RISK_THRESHOLD_CROSSED', clientId: clientID as string, email });
-            }
-          }
-
           return res.render(view, {
             uid,
             email,
             nonce: res.locals.cspNonce,
             waitTime,
-            disableResend: waitTime === -1 ? true : false,
+            disableResend: waitTime === -1,
             disableForm: error === 'EXPIRED_OTP_WITH_RESEND',
             error: errors[error as keyof typeof errors],
             disableResendError: waitTime === -1 ? errors['OTPS_LIMIT_REACHED'] : '',
           });
         }
 
-        if (process.env.USE_RBA === 'true' && forwardedHeaders.for) {
-          const score = await sendRBAEvent(email, forwardedHeaders.for, 'login').catch((err: any) =>
-            console.error(`error calling RBA module: ${err}`),
-          );
-          if (score?.risk === 1) {
-            await createEvent({ eventType: 'RISK_THRESHOLD_CROSSED', clientId: clientID as string, email });
-          }
-        }
         const result = {
           login: {
             accountId: email,
@@ -209,6 +188,6 @@ export const abortLogin = async (oidcProvider: Provider) => {
 
 const isInteractionSessionExpired = async (interactionUid: string) => {
   const interaction = await getInteractionById(interactionUid);
-  if (interaction && new Date().getTime() >= new Date(interaction.expiresAt).getTime()) return true;
+  if (interaction && Date.now() >= new Date(interaction.expiresAt).getTime()) return true;
   return false;
 };

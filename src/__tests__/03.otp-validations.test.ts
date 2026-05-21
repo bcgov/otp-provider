@@ -1,7 +1,5 @@
-import { Agent } from 'supertest';
-import crypto from 'node:crypto';
+import request, { Agent } from 'supertest';
 import app, { initializeApp } from '../app';
-import request from 'supertest';
 import { errors } from '../modules/errors';
 import { cleanUpOtps, createActiveOtp, createOtps, getOtpsByEmail } from './helpers/queries';
 import { generateCodeVerifierChallenge } from './helpers/utils';

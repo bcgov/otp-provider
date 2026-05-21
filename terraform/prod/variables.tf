@@ -218,34 +218,22 @@ variable "autoscale_min_capacity" {
   default = 2
 }
 
-variable "use_rba" {
-  type    = string
-  default = "false"
-}
-
-variable "rba_client_secret" {
-  type      = string
-  default   = ""
-  sensitive = true
-}
-
-variable "rba_client_id" {
-  type      = string
-  default   = ""
-  sensitive = true
-}
-
-variable "rba_auth_url" {
-  type    = string
-  default = ""
-}
-
-variable "rba_base_url" {
-  type    = string
-  default = ""
-}
-
 variable "mail_from" {
   type    = string
   default = "bcgov.sso@gov.bc.ca"
+}
+
+variable "ches_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ches_token_url" {
+  type    = string
+  default = ""
+}
+
+variable "email_provider" {
+  type    = string
+  default = ""
 }

@@ -67,11 +67,9 @@ module "dev" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.dev_use_rba
-  rba_client_id     = var.dev_rba_client_id
-  rba_client_secret = var.dev_rba_client_secret
-  rba_auth_url      = var.dev_rba_auth_url
-  rba_base_url      = var.dev_rba_base_url
+  ches_api_url   = var.ches_api_url
+  ches_token_url = var.ches_token_url
+  email_provider = var.email_provider
 }
 
 module "test" {
@@ -110,11 +108,9 @@ module "test" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.test_use_rba
-  rba_client_id     = var.test_rba_client_id
-  rba_client_secret = var.test_rba_client_secret
-  rba_auth_url      = var.test_rba_auth_url
-  rba_base_url      = var.test_rba_base_url
+  ches_api_url   = var.ches_api_url
+  ches_token_url = var.ches_token_url
+  email_provider = var.email_provider
 }
 
 module "prod" {
@@ -153,9 +149,7 @@ module "prod" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.prod_use_rba
-  rba_client_id     = var.prod_rba_client_id
-  rba_client_secret = var.prod_rba_client_secret
-  rba_auth_url      = var.prod_rba_auth_url
-  rba_base_url      = var.prod_rba_base_url
+  ches_api_url   = var.ches_api_url
+  ches_token_url = var.ches_token_url
+  email_provider = var.email_provider
 }

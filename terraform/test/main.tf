@@ -88,6 +88,9 @@ module "fargate" {
   otp_resend_interval_minutes = var.otp_resend_interval_minutes
   otp_resends_allowed_per_day = var.otp_resends_allowed_per_day
   jwks_secret_version_arn     = data.aws_secretsmanager_secret_version.otp_provider_secret_version.arn
+  ches_api_url                = var.ches_api_url
+  ches_token_url              = var.ches_token_url
+  email_provider              = var.email_provider
 
   desired_tasks          = var.desired_tasks
   enable_autoscale       = var.enable_autoscale
@@ -95,9 +98,4 @@ module "fargate" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.use_rba
-  rba_client_secret = var.rba_client_secret
-  rba_client_id     = var.rba_client_id
-  rba_auth_url      = var.rba_auth_url
-  rba_base_url      = var.rba_base_url
 }
