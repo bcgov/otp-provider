@@ -58,6 +58,7 @@ module "fargate" {
   source = "../modules/fargate"
 
   name                        = var.name
+  aws_region                  = var.aws_region
   target_group_arn            = module.alb.target_group_arn
   security_group_ids          = var.security_group_ids
   subnet_ids                  = var.subnet_ids

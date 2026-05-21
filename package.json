@@ -31,7 +31,6 @@
     "lodash.isempty": "^4.4.0",
     "node-cron": "^4.2.1",
     "oidc-provider": "^9.8.3",
-    "openid-client": "^6.8.2",
     "pg": "^8.19.0",
     "sequelize": "^6.37.8",
     "ua-parser-js": "^2.0.9",

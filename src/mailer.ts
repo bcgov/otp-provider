@@ -1,7 +1,7 @@
 import axios from 'axios';
 import logger from './modules/winston.config';
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
-import url from 'node:url';
+import { URLSearchParams } from 'node:url';
 import { config } from './config';
 
 const { EMAIL_PROVIDER, CHES_TOKEN_URL, CHES_API_URL, CHES_USERNAME, CHES_PASSWORD, MAIL_FROM } = config;
@@ -23,43 +23,39 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, maxRetries = 3) => {
-  try {
-    if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
-    let attempt = 0;
-    if (!to || !subject || !body) {
-      throw new Error('to, subject, and body are required');
-    }
+  if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
+  let attempt = 0;
+  if (!to || !subject || !body) {
+    throw new Error('to, subject, and body are required');
+  }
 
-    const from = MAIL_FROM;
+  const from = MAIL_FROM;
 
-    while (attempt < maxRetries) {
-      try {
-        switch (EMAIL_PROVIDER) {
-          case 'ches':
-            await sendEmailThroughChes({ from, to, subject, body, ...rest });
-            break;
-          case 'ses':
-            await sendEmailThroughSES({ from, to, subject, body });
-            break;
-          default:
-            throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`);
-        }
-        break; // success, exit the retry loop
-      } catch (error) {
-        attempt++;
-        logger.error(`Email send attempt ${attempt} failed: ${error}`);
-        if (attempt >= maxRetries) {
-          throw new Error(`Failed to send email after ${maxRetries} attempts`);
-        }
+  while (attempt < maxRetries) {
+    try {
+      switch (EMAIL_PROVIDER) {
+        case 'ches':
+          await sendEmailThroughChes({ from, to, subject, body, ...rest });
+          break;
+        case 'ses':
+          await sendEmailThroughSES({ from, to, subject, body });
+          break;
+        default:
+          throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`);
+      }
+      break; // success, exit the retry loop
+    } catch (error) {
+      attempt++;
+      logger.error(`Email send attempt ${attempt} failed: ${error}`);
+      if (attempt >= maxRetries) {
+        throw new Error(`Failed to send email after ${maxRetries} attempts`);
       }
     }
-  } catch (err) {
-    logger.error('Failed to send email:', err);
   }
 };
 
 const getChesToken = async () => {
-  const params = new url.URLSearchParams({ grant_type: 'client_credentials' });
+  const params = new URLSearchParams({ grant_type: 'client_credentials' });
   try {
     const { data } = await axios.post(CHES_TOKEN_URL, params.toString(), {
       headers: {
@@ -96,7 +92,7 @@ export const sendEmailThroughChes = async (email: EmailOptions) => {
         encoding: 'utf-8',
         from,
         priority: 'normal',
-        subject: subject || 'CHES Email Message',
+        subject,
         to,
         ...rest,
       },
@@ -106,7 +102,7 @@ export const sendEmailThroughChes = async (email: EmailOptions) => {
     );
     return res;
   } catch (err) {
-    logger.error('Error sending email through CHES:', err);
+    logger.error('Error sending email through ches:', err);
     throw err;
   }
 };
@@ -136,7 +132,7 @@ export const sendEmailThroughSES = async (email: EmailOptions) => {
     const result = await sesClient.send(command);
     return result.MessageId;
   } catch (err) {
-    logger.error('Error sending email through SES:', err);
+    logger.error('Error sending email through ses:', err);
     throw err;
   }
 };

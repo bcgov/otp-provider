@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region to deploy to"
+  type        = string
+  default     = "ca-central-1"
+}
+
 variable "name" {
   description = "Name of the task"
   type        = string
@@ -61,7 +67,7 @@ variable "node_env" {
 variable "app_url" {
   type        = string
   description = "App url"
-  default     = "http://localhost:8080"
+  default     = "http://localhost:3000"
 }
 
 variable "log_level" {

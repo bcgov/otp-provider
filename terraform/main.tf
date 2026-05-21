@@ -35,6 +35,7 @@ module "dev" {
   source = "./dev"
 
   name               = "${local.name}-dev"
+  aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
   custom_domain_name = var.dev_custom_domain_name
@@ -76,6 +77,7 @@ module "test" {
   source = "./test"
 
   name               = "${local.name}-test"
+  aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
   custom_domain_name = var.test_custom_domain_name
@@ -117,6 +119,7 @@ module "prod" {
   source = "./prod"
 
   name               = "${local.name}-prod"
+  aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
   custom_domain_name = var.prod_custom_domain_name

@@ -1,6 +1,6 @@
 # otp-provider — AI Agent Instructions
 
-Email-based OTP identity provider implementing OIDC via [node-oidc-provider v8](https://github.com/panva/node-oidc-provider). Users authenticate by entering their email address; an OTP is sent and validated, then the provider returns an identity assertion (used as an IdP behind Keycloak).
+Email-based OTP identity provider implementing OIDC via [node-oidc-provider v9](https://github.com/panva/node-oidc-provider). Users authenticate by entering their email address; an OTP is sent and validated, then the provider returns an identity assertion (used as an IdP behind Keycloak).
 
 ## Architecture
 
@@ -8,7 +8,7 @@ Email-based OTP identity provider implementing OIDC via [node-oidc-provider v8](
 Client App → Keycloak (broker) → OTP Provider → Email OTP → OIDC token
 ```
 
-**Stack:** TypeScript (ESM), Express 5, `oidc-provider` v8, Sequelize 6 + PostgreSQL, EJS views, Tailwind CSS, tsup bundler.
+**Stack:** TypeScript (ESM), Express 5, `oidc-provider` v9, Sequelize 6 + PostgreSQL, EJS views, Tailwind CSS, tsup bundler.
 
 Key source layout:
 

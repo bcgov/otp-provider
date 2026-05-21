@@ -67,7 +67,7 @@ resource "aws_ecs_task_definition" "this" {
       environment = [
         {
           name  = "AWS_REGION",
-          value = "ca-central-1"
+          value = var.aws_region
         }
       ]
       logConfiguration = {
@@ -75,7 +75,7 @@ resource "aws_ecs_task_definition" "this" {
         options = {
           awslogs-create-group  = "true"
           awslogs-group         = var.awslogs-group
-          awslogs-region        = "ca-central-1"
+          awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
       }
@@ -154,7 +154,7 @@ resource "aws_ecs_task_definition" "this" {
         },
         {
           name  = "AWS_REGION",
-          value = "ca-central-1"
+          value = var.aws_region
         },
         {
           name  = "MAIL_FROM",

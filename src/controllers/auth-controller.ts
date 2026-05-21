@@ -4,7 +4,7 @@ import { getOtpWaitTime, requestOtp, verifyOtp } from '../services/otp';
 import { emailValidator, otpValidator } from '../utils/shared';
 import { sendEmail } from '../mailer';
 import { getInteractionById } from '../modules/sequelize/queries/interaction';
-import { LoginTimeoutError, parseForwardedHeader } from '../utils/helpers';
+import { LoginTimeoutError } from '../utils/helpers';
 import { errors } from '../modules/errors';
 
 export const authorize = async (oidcProvider: Provider) => {
