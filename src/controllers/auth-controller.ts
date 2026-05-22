@@ -61,7 +61,7 @@ export const generateOtp = async (oidcProvider: Provider) => {
           });
         }
 
-        const { waitTime, error, newOtp } = await requestOtp(email, clientID as string);
+        const { waitTime, error, newOtp, transaction } = await requestOtp(email, clientID as string);
 
         if (error) {
           return res.render(`signin`, {
@@ -79,17 +79,24 @@ export const generateOtp = async (oidcProvider: Provider) => {
           },
         } as any);
 
-        await sendEmail({
-          to: [email],
-          body: `<p>You are receiving this email because you are attempting to sign in to a BC Government website.</p>
+        try {
+          await sendEmail({
+            to: [email],
+            body: `<p>You are receiving this email because you are attempting to sign in to a BC Government website.</p>
           <p>Copy and enter this 6-digit verification code to the One Time Passcode login page. This code will expire in 5 minutes.</p>
           <p style="font-size:24px;"><strong>${newOtp}</strong></p>
           <p>Do not share this code or forward this email to anyone.</p>
           <p>If this wasn't you, please ignore this message.</p>
           <p>This is an automated message from the Government of British Columbia. Please do not reply.</p>
           `,
-          subject: `${newOtp} is your verification code.`,
-        });
+            subject: `${newOtp} is your verification code.`,
+          });
+          await transaction.commit();
+        } catch (err) {
+          console.error('Error sending OTP email', err);
+          await transaction.rollback();
+          throw new Error('Failed to send OTP email');
+        }
 
         return res.render('otp', {
           uid,

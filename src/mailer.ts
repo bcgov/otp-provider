@@ -23,7 +23,7 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, maxRetries = 3) => {
-  if (process.env.TEST_MODE === 'true' || process.env.NODE_ENV === 'test') return true;
+  console.log('sendEmail called with:', { to, subject, ...rest });
   let attempt = 0;
   if (!to || !subject || !body) {
     throw new Error('to, subject, and body are required');
@@ -77,62 +77,51 @@ const getChesToken = async () => {
 
 export const sendEmailThroughChes = async (email: EmailOptions) => {
   const { from, to, subject, body, ...rest } = email;
-  try {
-    const [accessToken, error] = await getChesToken();
-    if (error) {
-      throw new Error('unable to fetch ches token');
-    }
-
-    const res = await axios.post(
-      CHES_API_URL,
-      {
-        // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options
-        bodyType: 'html',
-        body,
-        encoding: 'utf-8',
-        from,
-        priority: 'normal',
-        subject,
-        to,
-        ...rest,
-      },
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      },
-    );
-    return res;
-  } catch (err) {
-    logger.error('Error sending email through ches:', err);
-    throw err;
+  const [accessToken, error] = await getChesToken();
+  if (error) {
+    throw new Error('unable to fetch ches token');
   }
+
+  const res = await axios.post(
+    CHES_API_URL,
+    {
+      // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options
+      bodyType: 'html',
+      body,
+      encoding: 'utf-8',
+      from,
+      priority: 'normal',
+      subject,
+      to,
+      ...rest,
+    },
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    },
+  );
+  return res;
 };
 
 export const sendEmailThroughSES = async (email: EmailOptions) => {
   const { from, to, subject, body } = email;
-  try {
-    const command = new SendEmailCommand({
-      Source: from,
-      Destination: {
-        ToAddresses: Array.isArray(to) ? to : [to],
+  const command = new SendEmailCommand({
+    Source: from,
+    Destination: {
+      ToAddresses: Array.isArray(to) ? to : [to],
+    },
+    Message: {
+      Subject: {
+        Data: subject,
+        Charset: 'UTF-8',
       },
-      Message: {
-        Subject: {
-          Data: subject,
+      Body: {
+        Html: {
+          Data: body,
           Charset: 'UTF-8',
         },
-        Body: {
-          Html: {
-            Data: body,
-            Charset: 'UTF-8',
-          },
-        },
       },
-    });
+    },
+  });
 
-    const result = await sesClient.send(command);
-    return result.MessageId;
-  } catch (err) {
-    logger.error('Error sending email through ses:', err);
-    throw err;
-  }
+  await sesClient.send(command);
 };
