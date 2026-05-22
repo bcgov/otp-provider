@@ -1,10 +1,16 @@
 import request, { Agent } from 'supertest';
-import app, { initializeApp } from '../app';
-import sequelize from '../modules/sequelize/config';
-import { QueryTypes } from 'sequelize';
 import crypto from 'node:crypto';
-import { getOtpsByEmail } from './helpers/queries';
+import { jest } from '@jest/globals';
 import { errors } from '../modules/errors';
+import { getOtpsByEmail, getActiveOtp } from './helpers/queries';
+
+const mockSendEmail = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
+jest.unstable_mockModule('../mailer', () => ({
+  sendEmail: mockSendEmail,
+}));
+
+const { default: app, initializeApp } = await import('../app');
+const { default: sequelize } = await import('../modules/sequelize/config');
 
 const codes = {
   code1: '1',
@@ -32,9 +38,14 @@ describe('otp login test', () => {
   const codeVerifier = crypto.randomBytes(32).toString('base64url'); // 43-128 characters
   const hash = crypto.createHash('sha256').update(codeVerifier).digest();
   const codeChallenge = hash.toString('base64url');
+
   beforeAll(async () => {
     await initializeApp(app);
     agent = request.agent(app);
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
   });
 
   it('should allow to access the server', async () => {
@@ -76,10 +87,7 @@ describe('otp login test', () => {
     expect(res.status).toEqual(200);
     expect(res.text).toContain(errors.INVALID_OTP);
 
-    const otpRecords: any = await sequelize.query('select * from "Otp" where email=:email and active = true', {
-      replacements: { email: 'testuser@gmail.com' },
-      type: QueryTypes.SELECT,
-    });
+    const otpRecords: any = await getActiveOtp('testuser@gmail.com');
 
     expect(otpRecords[0].attempts).toEqual(1);
   });
@@ -89,20 +97,14 @@ describe('otp login test', () => {
     const res = await agent.post(`${interactionPath}/otp`).type('form').send(data);
     expect(res.status).toEqual(200);
 
-    const otpRecords: any = await sequelize.query('select * from "Otp" where email=:email order by "createdAt" desc', {
-      replacements: { email: 'testuser@gmail.com' },
-      type: QueryTypes.SELECT,
-    });
+    const otpRecords: any = await getOtpsByEmail('testuser@gmail.com');
 
     expect(otpRecords.length).toEqual(1);
     expect(otpRecords[0].active).toBeTruthy();
   });
 
   it('should accept correct passcode', async () => {
-    const otpRecords: any = await sequelize.query('select * from "Otp" where email=:email and active = true', {
-      replacements: { email: 'testuser@gmail.com' },
-      type: QueryTypes.SELECT,
-    });
+    const otpRecords: any = await getActiveOtp('testuser@gmail.com');
 
     const codes = formatCode(otpRecords[0].otp);
     const data = { email: 'testuser@gmail.com', ...codes };
@@ -138,7 +140,7 @@ describe('otp login test', () => {
   });
 
   it('should return expected claims in the id_token', () => {
-    const [headerB64, payloadB64] = idToken.split('.');
+    const [_, payloadB64] = idToken.split('.');
     const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
     expect(payload).toHaveProperty('sub');
     expect(payload.sub).toEqual('testuser@gmail.com');

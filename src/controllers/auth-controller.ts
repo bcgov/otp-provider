@@ -64,6 +64,7 @@ export const generateOtp = async (oidcProvider: Provider) => {
         const { waitTime, error, newOtp, transaction } = await requestOtp(email, clientID as string);
 
         if (error) {
+          await transaction.rollback();
           return res.render(`signin`, {
             uid,
             error: errors[error as keyof typeof errors],

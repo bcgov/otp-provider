@@ -1,8 +1,16 @@
 import request, { Agent } from 'supertest';
-import app, { initializeApp } from '../app';
 import { errors } from '../modules/errors';
 import { cleanUpOtps, createActiveOtp, createOtps, getOtpsByEmail } from './helpers/queries';
 import { generateCodeVerifierChallenge } from './helpers/utils';
+import { jest } from '@jest/globals';
+
+const mockSendEmail = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
+jest.unstable_mockModule('../mailer', () => ({
+  sendEmail: mockSendEmail,
+}));
+
+const { default: app, initializeApp } = await import('../app');
+const { default: sequelize } = await import('../modules/sequelize/config');
 
 const userEmail = 'test-user-1@gov.bc.ca';
 
@@ -11,6 +19,10 @@ const clientId = 'pub-client';
 const testClient = 'test-client';
 
 let agent: Agent;
+
+afterAll(async () => {
+  await sequelize.close();
+});
 
 describe('validations', () => {
   let interactionPath = '';

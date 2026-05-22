@@ -1,7 +1,7 @@
 import request, { Agent } from 'supertest';
 import { jest } from '@jest/globals';
 import { generateCodeVerifierChallenge } from './helpers/utils';
-import { getOtpsByEmail } from './helpers/queries';
+import { cleanUpOtps, getOtpsByEmail } from './helpers/queries';
 
 const userEmail = 'test-user-1@gov.bc.ca';
 
@@ -17,6 +17,8 @@ jest.unstable_mockModule('../mailer', () => ({
 }));
 
 const { default: app, initializeApp } = await import('../app');
+// Import sequelize from the same dynamic-import chain so we close the correct pool.
+const { default: sequelize } = await import('../modules/sequelize/config');
 
 describe('validations', () => {
   let interactionPath = '';
@@ -24,6 +26,11 @@ describe('validations', () => {
   beforeAll(async () => {
     await initializeApp(app);
     agent = request.agent(app);
+    await cleanUpOtps();
+  });
+
+  afterAll(async () => {
+    await sequelize.close();
   });
 
   beforeEach(() => {
