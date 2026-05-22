@@ -1,10 +1,10 @@
-import { errors, otpValidator, otpValidDigits } from 'src/utils/shared';
+import { errors, otpValidator, otpValidDigits } from '../utils/shared';
 import { countdown, createResendCodeForm, getUID, clearFormError, setFormError, appendSpinner } from './shared';
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('otp-form') as HTMLFormElement;
   const errorEl = document.getElementById('otp-error');
-  const waitTimeElement = document.getElementById('wait-time-text') as HTMLElement | null;
+  const waitTimeElement = document.getElementById('wait-time-text');
   const codeContainer = document.getElementById('new-code-text');
   const loginButton = document.getElementById('login-button') as HTMLButtonElement;
   let submitting = false;
