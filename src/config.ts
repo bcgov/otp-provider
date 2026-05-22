@@ -23,8 +23,9 @@ export const config = {
   OTP_RESENDS_ALLOWED_PER_DAY: process.env.OTP_RESENDS_ALLOWED_PER_DAY || '4',
   OTP_RESEND_INTERVAL_MINUTES: process.env.OTP_RESEND_INTERVAL_MINUTES || '[1,2,5,25]',
   COOKIE_SECRETS: process.env.COOKIE_SECRETS || 's3cr3t1,s3cr3t1,s3cr3t2',
-  CHES_TOKEN_URL: process.env.CHES_TOKEN_URL || '',
-  CHES_API_URL: process.env.CHES_API_URL || '',
+  CHES_TOKEN_URL:
+    process.env.CHES_TOKEN_URL || 'https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token',
+  CHES_API_URL: process.env.CHES_API_URL || 'https://ches.api.gov.bc.ca/api/v1/email',
   CHES_USERNAME: process.env.CHES_USERNAME || '',
   CHES_PASSWORD: process.env.CHES_PASSWORD || '',
   EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || 'ches', // or 'ses'
