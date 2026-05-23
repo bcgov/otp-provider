@@ -94,6 +94,8 @@ jobs:
         env:
           CHES_USERNAME: ${{ secrets.CHES_USERNAME }}
           CHES_PASSWORD: ${{ secrets.CHES_PASSWORD }}
+          EMAIL_PROVIDER: ches
+          MAIL_FROM: bcgov.sso@gov.bc.ca
         run: JWKS=$(node ./jwks-generator/jwks-generator.js) DB_NAME=otp_test yarn test:e2e
         working-directory: .
 

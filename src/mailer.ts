@@ -8,6 +8,8 @@ const { EMAIL_PROVIDER, CHES_TOKEN_URL, CHES_API_URL, CHES_USERNAME, CHES_PASSWO
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
 
+let chesTokenCache: { token: string; expiresAt: number } | null = null;
+
 interface EmailOptions {
   from?: string;
   to: string[];
@@ -54,6 +56,11 @@ export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, ma
 };
 
 const getChesToken = async () => {
+  if (chesTokenCache && Date.now() < chesTokenCache.expiresAt) {
+    console.log('Using cached CHES token');
+    return [chesTokenCache.token, null];
+  }
+
   const params = new URLSearchParams({ grant_type: 'client_credentials' });
   try {
     const { data } = await axios.post(CHES_TOKEN_URL, params.toString(), {
@@ -68,6 +75,14 @@ const getChesToken = async () => {
     });
 
     const { access_token } = data as { access_token: string };
+
+    if (data.expires_in) {
+      chesTokenCache = {
+        token: access_token,
+        expiresAt: Date.now() + data.expires_in * 1000 - 60000, // buffer of 1 minute
+      };
+    }
+
     return [access_token, null];
   } catch (err) {
     return [null, err];
