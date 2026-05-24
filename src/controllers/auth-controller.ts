@@ -61,10 +61,14 @@ export const generateOtp = async (oidcProvider: Provider) => {
           });
         }
 
-        const { waitTime, error, newOtp, transaction } = await requestOtp(email, clientID as string);
+        let waitTime = 0;
+
+        const { error, newOtp, transaction } = await requestOtp(email, clientID as string);
 
         if (error) {
-          await transaction.rollback();
+          // commits events transaction
+          await transaction.commit();
+          waitTime = error === 'RESEND_TIMEOUT' ? await getOtpWaitTime(email, clientID as string) : 0;
           return res.render(`signin`, {
             uid,
             error: errors[error as keyof typeof errors],
@@ -94,10 +98,12 @@ export const generateOtp = async (oidcProvider: Provider) => {
           });
           await transaction.commit();
         } catch (err) {
-          console.error('Error sending OTP email', err);
           await transaction.rollback();
+          console.error('Error sending OTP email', err);
           throw new Error('Failed to send OTP email');
         }
+
+        waitTime = await getOtpWaitTime(email, clientID as string);
 
         return res.render('otp', {
           uid,

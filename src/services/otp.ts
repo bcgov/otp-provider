@@ -17,7 +17,7 @@ const otpResendIntervalMinutes = JSON.parse(OTP_RESEND_INTERVAL_MINUTES || '[]')
 
 export const requestOtp = async (email: string, clientId: string) => {
   const transaction = await sequelize.transaction();
-  let response = { waitTime: 0, error: '', newOtp: null, transaction };
+  let response = { error: '', newOtp: null, transaction };
   try {
     const otps = await getOtpCountAndRecentDate(email, clientId);
 
@@ -58,10 +58,9 @@ export const requestOtp = async (email: string, clientId: string) => {
         const otp = await createOtp({ otp: generateOtp(), email, clientId }, transaction);
         response.newOtp = otp.otp;
       } else {
-        response = { ...response, waitTime: currentWaitSeconds, error: 'RESEND_TIMEOUT' };
+        response = { ...response, error: 'RESEND_TIMEOUT' };
       }
     }
-    if (!response.error) response.waitTime = await getOtpWaitTime(email, clientId);
     return response;
   } catch (err) {
     await transaction.rollback();

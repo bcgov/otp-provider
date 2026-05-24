@@ -30,34 +30,38 @@ export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, ma
     throw new Error('to, subject, and body are required');
   }
 
-  const from = MAIL_FROM;
+  if (!['ches', 'ses'].includes(EMAIL_PROVIDER)) {
+    throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`);
+  }
 
-  while (attempt < maxRetries) {
+  const from = MAIL_FROM;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    if (attempt > 0) {
+      // Exponential backoff with jitter: 200 ms, 400 ms, 800 ms … ± up to 100 ms.
+      const backoff = 2 ** (attempt - 1) * 200 + Math.random() * 100;
+      await new Promise((resolve) => setTimeout(resolve, backoff));
+    }
+
     try {
-      switch (EMAIL_PROVIDER) {
-        case 'ches':
-          await sendEmailThroughChes({ from, to, subject, body, ...rest });
-          break;
-        case 'ses':
-          await sendEmailThroughSES({ from, to, subject, body });
-          break;
-        default:
-          throw new Error(`Unsupported email provider: ${EMAIL_PROVIDER}`);
+      if (EMAIL_PROVIDER === 'ches') {
+        await sendEmailThroughChes({ from, to, subject, body, ...rest });
+      } else {
+        await sendEmailThroughSES({ from, to, subject, body });
       }
-      break; // success, exit the retry loop
+      return;
     } catch (error) {
-      attempt++;
-      logger.error(`Email send attempt ${attempt} failed: ${error}`);
-      if (attempt >= maxRetries) {
-        throw new Error(`Failed to send email after ${maxRetries} attempts`);
-      }
+      lastError = error;
+      logger.warn(`Email send attempt ${attempt + 1}/${maxRetries} failed`, { error: String(error) });
     }
   }
+
+  throw new Error(`Failed to send email after ${maxRetries} attempts. Last error: ${lastError}`);
 };
 
 const getChesToken = async () => {
   if (chesTokenCache && Date.now() < chesTokenCache.expiresAt) {
-    console.log('Using cached CHES token');
     return [chesTokenCache.token, null];
   }
 
@@ -90,52 +94,61 @@ const getChesToken = async () => {
 };
 
 export const sendEmailThroughChes = async (email: EmailOptions) => {
-  const { from, to, subject, body, ...rest } = email;
-  const [accessToken, error] = await getChesToken();
-  if (error) {
-    throw new Error('unable to fetch ches token');
-  }
+  try {
+    const { from, to, subject, body, ...rest } = email;
+    const [accessToken, error] = await getChesToken();
+    if (error) {
+      throw new Error('unable to fetch ches token');
+    }
 
-  const res = await axios.post(
-    CHES_API_URL,
-    {
-      // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options
-      bodyType: 'html',
-      body,
-      encoding: 'utf-8',
-      from,
-      priority: 'normal',
-      subject,
-      to,
-      ...rest,
-    },
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    },
-  );
-  return res;
+    const res = await axios.post(
+      CHES_API_URL,
+      {
+        // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options
+        bodyType: 'html',
+        body,
+        encoding: 'utf-8',
+        from,
+        priority: 'normal',
+        subject,
+        to,
+        ...rest,
+      },
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+  } catch (err) {
+    console.error('Error sending email through ches', err);
+    throw new Error('Failed to send email through ches');
+  }
 };
 
 export const sendEmailThroughSES = async (email: EmailOptions) => {
-  const { from, to, subject, body } = email;
-  const command = new SendEmailCommand({
-    Source: from,
-    Destination: {
-      ToAddresses: Array.isArray(to) ? to : [to],
-    },
-    Message: {
-      Subject: {
-        Data: subject,
-        Charset: 'UTF-8',
+  try {
+    const { from, to, subject, body } = email;
+    const command = new SendEmailCommand({
+      Source: from,
+      Destination: {
+        ToAddresses: Array.isArray(to) ? to : [to],
       },
-      Body: {
-        Html: {
-          Data: body,
+      Message: {
+        Subject: {
+          Data: subject,
           Charset: 'UTF-8',
         },
+        Body: {
+          Html: {
+            Data: body,
+            Charset: 'UTF-8',
+          },
+        },
       },
-    },
-  });
+    });
 
-  await sesClient.send(command);
+    await sesClient.send(command);
+  } catch (err) {
+    console.error('Error sending email through aws ses', err);
+    throw new Error('Failed to send email through aws ses');
+  }
 };
