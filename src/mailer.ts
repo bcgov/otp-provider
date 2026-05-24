@@ -25,7 +25,6 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, maxRetries = 3) => {
-  let attempt = 0;
   if (!to || !subject || !body) {
     throw new Error('to, subject, and body are required');
   }
