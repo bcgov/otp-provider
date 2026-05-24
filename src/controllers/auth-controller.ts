@@ -77,12 +77,18 @@ export const generateOtp = async (oidcProvider: Provider) => {
           });
         }
 
-        // Store the email in the interaction session
-        await oidcProvider.interactionResult(req, res, {
-          login: {
-            email,
-          },
-        } as any);
+        try {
+          // Store the email in the interaction session
+          await oidcProvider.interactionResult(req, res, {
+            login: {
+              email,
+            },
+          } as any);
+        } catch (err) {
+          await transaction.rollback();
+          console.error('Error setting interaction result', err);
+          throw new Error('Failed to set interaction result');
+        }
 
         try {
           await sendEmail({

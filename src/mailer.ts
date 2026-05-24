@@ -25,7 +25,7 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, maxRetries = 3) => {
-  if (!to || !subject || !body) {
+  if (!to || to.length === 0 || !subject || !body) {
     throw new Error('to, subject, and body are required');
   }
 
@@ -100,7 +100,7 @@ export const sendEmailThroughChes = async (email: EmailOptions) => {
       throw new Error('unable to fetch ches token');
     }
 
-    const res = await axios.post(
+    await axios.post(
       CHES_API_URL,
       {
         // see https://ches.nrs.gov.bc.ca/api/v1/docs#operation/postEmail for options

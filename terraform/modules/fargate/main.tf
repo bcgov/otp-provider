@@ -64,12 +64,6 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = var.container_port
         }
       ]
-      environment = [
-        {
-          name  = "AWS_REGION",
-          value = var.aws_region
-        }
-      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
