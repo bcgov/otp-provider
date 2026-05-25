@@ -74,6 +74,6 @@ describe('validations', () => {
     expect(loginRes.status).toEqual(200);
     expect(mockSendEmail).toHaveBeenCalledTimes(1);
     const otps = await getOtpsByEmail(userEmail);
-    expect(otps.length).toEqual(1); // No OTP should be created due to transaction rollback
+    expect(otps.length).toEqual(1);
   });
 });

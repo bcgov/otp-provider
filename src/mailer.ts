@@ -38,8 +38,8 @@ export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, ma
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     if (attempt > 0) {
-      // Exponential backoff with jitter: 200 ms, 400 ms, 800 ms … ± up to 100 ms.
-      const backoff = 2 ** (attempt - 1) * 200 + Math.random() * 100;
+      // Exponential backoff: 200 ms, 400 ms, 800 ms …
+      const backoff = 2 ** (attempt - 1) * 200;
       await new Promise((resolve) => setTimeout(resolve, backoff));
     }
 
