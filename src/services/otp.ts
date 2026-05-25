@@ -1,5 +1,4 @@
 import { config } from '../config';
-import { ErrorKeys, errors } from '../modules/errors';
 import { generateOtp } from '../utils/helpers';
 import sequelize from '../modules/sequelize/config';
 import {
@@ -18,7 +17,7 @@ const otpResendIntervalMinutes = JSON.parse(OTP_RESEND_INTERVAL_MINUTES || '[]')
 
 export const requestOtp = async (email: string, clientId: string) => {
   const transaction = await sequelize.transaction();
-  let response = { waitTime: 0, error: '', newOtp: null };
+  let response = { error: '', newOtp: null, transaction };
   try {
     const otps = await getOtpCountAndRecentDate(email, clientId);
 
@@ -59,14 +58,12 @@ export const requestOtp = async (email: string, clientId: string) => {
         const otp = await createOtp({ otp: generateOtp(), email, clientId }, transaction);
         response.newOtp = otp.otp;
       } else {
-        response = { ...response, waitTime: currentWaitSeconds, error: 'RESEND_TIMEOUT' };
+        response = { ...response, error: 'RESEND_TIMEOUT' };
       }
     }
-    await transaction.commit();
-    if (!response.error) response.waitTime = await getOtpWaitTime(email, clientId);
     return response;
   } catch (err) {
-    transaction.rollback();
+    await transaction.rollback();
     console.error(err);
     throw new Error('Failed to create OTP');
   }

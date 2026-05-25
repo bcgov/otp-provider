@@ -1,7 +1,7 @@
 import sequelize from './config';
 import { Umzug, SequelizeStorage } from 'umzug';
 import os from 'node:os';
-import { dirname } from 'path';
+import { dirname } from 'node:path';
 
 export const models = [
   'Session',

@@ -23,7 +23,7 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: otp
       NODE_ENV: development
-      APP_URL: http://localhost:8080
+      APP_URL: http://localhost:3000
       LOG_LEVEL: debug
       COOKIE_SECRETS: 's3cr3t1,s3cr3t1,s3cr3t2'
     ports:

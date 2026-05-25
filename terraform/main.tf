@@ -35,6 +35,7 @@ module "dev" {
   source = "./dev"
 
   name               = "${local.name}-dev"
+  aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
   custom_domain_name = var.dev_custom_domain_name
@@ -67,17 +68,16 @@ module "dev" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.dev_use_rba
-  rba_client_id     = var.dev_rba_client_id
-  rba_client_secret = var.dev_rba_client_secret
-  rba_auth_url      = var.dev_rba_auth_url
-  rba_base_url      = var.dev_rba_base_url
+  ches_api_url   = var.ches_api_url
+  ches_token_url = var.ches_token_url
+  email_provider = var.email_provider
 }
 
 module "test" {
   source = "./test"
 
   name               = "${local.name}-test"
+  aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
   custom_domain_name = var.test_custom_domain_name
@@ -110,17 +110,16 @@ module "test" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.test_use_rba
-  rba_client_id     = var.test_rba_client_id
-  rba_client_secret = var.test_rba_client_secret
-  rba_auth_url      = var.test_rba_auth_url
-  rba_base_url      = var.test_rba_base_url
+  ches_api_url   = var.ches_api_url
+  ches_token_url = var.ches_token_url
+  email_provider = var.email_provider
 }
 
 module "prod" {
   source = "./prod"
 
   name               = "${local.name}-prod"
+  aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
   custom_domain_name = var.prod_custom_domain_name
@@ -153,9 +152,7 @@ module "prod" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
-  use_rba           = var.prod_use_rba
-  rba_client_id     = var.prod_rba_client_id
-  rba_client_secret = var.prod_rba_client_secret
-  rba_auth_url      = var.prod_rba_auth_url
-  rba_base_url      = var.prod_rba_base_url
+  ches_api_url   = var.ches_api_url
+  ches_token_url = var.ches_token_url
+  email_provider = var.email_provider
 }

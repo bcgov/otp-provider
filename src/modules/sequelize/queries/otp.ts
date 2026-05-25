@@ -1,10 +1,7 @@
 import { QueryOptions, Transaction } from 'sequelize';
 import models from '../models';
-import { config } from '../../../config';
 import sequelize from '../config';
 import { v4 as UUIDV4 } from 'uuid';
-
-const { OTP_VALIDITY_MINUTES, OTP_ATTEMPTS_ALLOWED } = config;
 
 const otpModel = models.get('Otp');
 

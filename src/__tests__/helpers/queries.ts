@@ -3,7 +3,7 @@ import sequelize from '../../modules/sequelize/config';
 import { QueryTypes } from 'sequelize';
 
 export const getOtpsByEmail = async (email: string) => {
-  return await sequelize.query(`SELECT * from public."Otp" where email='${email}'`, {
+  return await sequelize.query(`SELECT * from public."Otp" where email='${email}' order by "createdAt" desc`, {
     type: QueryTypes.SELECT,
   });
 };
