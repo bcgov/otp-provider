@@ -9,7 +9,7 @@ jobs:
   pre-commit:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install asdf requirements
         run: |
           sudo apt-get update
@@ -17,7 +17,7 @@ jobs:
       - name: Setup asdf
         uses: asdf-vm/actions/setup@v4
       - name: Cache tools
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             /home/runner/.asdf
@@ -35,7 +35,5 @@ jobs:
   commitlint:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v6
       - uses: wagoid/commitlint-github-action@v5
