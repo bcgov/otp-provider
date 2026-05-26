@@ -5,7 +5,14 @@ import type { NextFunction, Response, Request } from 'express';
 const { HASH_SALT } = config;
 
 export const generateOtp = () => {
-  return crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(-6);
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+
+  // Uniformly map to 000000–999999
+  const otp = array[0] % 1_000_000;
+
+  // Pad with leading zeros
+  return otp.toString().padStart(6, '0');
 };
 
 export const isOtpValid = (otp: string, expiresAt: Date): boolean => {

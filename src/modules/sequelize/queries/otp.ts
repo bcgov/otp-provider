@@ -1,25 +1,42 @@
-import { QueryOptions, Transaction } from 'sequelize';
-import models from '../models';
-import { config } from '../../../config';
+import { FindOptions, Transaction } from 'sequelize';
 import sequelize from '../config';
-import { v4 as UUIDV4 } from 'uuid';
+import { getOtpModel } from '../models';
 
-const { OTP_VALIDITY_MINUTES, OTP_ATTEMPTS_ALLOWED } = config;
+const otpModel = getOtpModel();
 
-const otpModel = models.get('Otp');
-
-type OtpType = {
-  otp?: string;
+export type OtpType = {
+  id?: string;
+  otp: string;
   email: string;
   clientId: string;
   attempts?: number;
   active?: boolean;
+  updatedAt?: Date;
+  createdAt?: Date;
 };
 
-export const createOtp = async (otp: OtpType, transaction?: Transaction) => {
-  return await otpModel.create(
+export type ActiveOtpType = {
+  id: string;
+  otp: string;
+  email: string;
+  clientId: string;
+  attempts: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type OtpCountAndRecentDateType = {
+  otpCount: number;
+  lastCreatedAt: Date | null;
+};
+
+export const createOtp = async (
+  otp: Pick<OtpType, 'otp' | 'email' | 'clientId'>,
+  transaction?: Transaction,
+): Promise<ActiveOtpType> => {
+  const createdOtp = await otpModel.create(
     {
-      id: UUIDV4(),
       otp: otp.otp,
       email: otp.email,
       clientId: otp.clientId,
@@ -28,9 +45,13 @@ export const createOtp = async (otp: OtpType, transaction?: Transaction) => {
       transaction,
     },
   );
+  return createdOtp.get({ plain: true }) as ActiveOtpType;
 };
 
-export const updateOtpAttempts = async (otp: OtpType, transaction?: Transaction) => {
+export const updateOtpAttempts = async (
+  otp: Pick<OtpType, 'otp' | 'email' | 'clientId' | 'attempts'>,
+  transaction?: Transaction,
+) => {
   await otpModel.update(
     {
       attempts: otp.attempts,
@@ -38,47 +59,53 @@ export const updateOtpAttempts = async (otp: OtpType, transaction?: Transaction)
     },
     {
       where: { otp: otp.otp, email: otp.email, clientId: otp.clientId },
-    },
-    {
       transaction,
     },
   );
 };
 
-export const disableActiveOtp = async (otp: OtpType, transaction?: Transaction) => {
+export const disableActiveOtp = async (email: string, clientId: string, transaction?: Transaction) => {
   await otpModel.update(
     {
       active: false,
       updatedAt: new Date(),
     },
     {
-      where: { email: otp.email, clientId: otp.clientId },
-    },
-    {
+      where: { email, clientId },
       transaction,
     },
   );
 };
 
-export const deleteOtpsByEmail = async (otp: OtpType, transaction?: Transaction) => {
+export const deleteOtpsByEmail = async (email: string, clientId: string, transaction?: Transaction) => {
   await otpModel.destroy({
-    where: { email: otp.email, clientId: otp.clientId },
+    where: { email, clientId },
+    transaction,
   });
 };
 
-export const getActiveOtp = async (otp: OtpType, options: QueryOptions = { raw: true }) => {
-  return await otpModel.findOne({
+export const getActiveOtp = async (
+  email: string,
+  clientId: string,
+  options: Omit<FindOptions, 'where' | 'raw'> = {},
+): Promise<ActiveOtpType | null> => {
+  return (await otpModel.findOne({
     where: {
-      email: otp.email,
+      email,
       active: true,
-      clientId: otp.clientId,
+      clientId,
     },
+    raw: true,
     ...options,
-  });
+  })) as ActiveOtpType | null;
 };
 
-export const getOtpCountAndRecentDate = (email: string, clientId: string) => {
-  return otpModel.findAll({
+export const getOtpCountAndRecentDate = async (
+  email: string,
+  clientId: string,
+  transaction?: Transaction,
+): Promise<OtpCountAndRecentDateType[]> => {
+  const rows = (await otpModel.findAll({
     attributes: [
       [sequelize.fn('COUNT', sequelize.col('id')), 'otpCount'],
       [sequelize.fn('MAX', sequelize.col('createdAt')), 'lastCreatedAt'],
@@ -88,5 +115,11 @@ export const getOtpCountAndRecentDate = (email: string, clientId: string) => {
       clientId,
     },
     raw: true,
-  });
+    transaction,
+  })) as unknown as { otpCount: string | number; lastCreatedAt: Date | null }[];
+
+  return rows.map((row) => ({
+    otpCount: Number(row.otpCount),
+    lastCreatedAt: row.lastCreatedAt,
+  }));
 };

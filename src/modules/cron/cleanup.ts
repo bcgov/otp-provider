@@ -15,6 +15,7 @@ export const cleanupTables = async () => {
   }
 
   const otpModel = sequelizeModels.get('Otp');
+  if (!otpModel) throw new Error('Model "Otp" is not registered');
   await otpModel.destroy({
     truncate: true,
   });

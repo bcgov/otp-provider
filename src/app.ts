@@ -66,6 +66,10 @@ app.use(
 app.disable('x-powered-by');
 
 export const initializeApp = async (app: Express) => {
+  // Ensure test mode can never be accidently turned on in production
+  if (process.env.TEST_MODE === 'true' && config.NODE_ENV === 'production') {
+    throw new Error('TEST_MODE cannot be enabled in production');
+  }
   try {
     const migrator = await createMigrator(logger);
     logger.info('Migrating pending migrations:', await migrator.pending());

@@ -12,7 +12,8 @@
     "outDir": "./build",
     "rootDir": "./src",
     "baseUrl": "./",
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "types": ["jest"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "build"]
