@@ -43,8 +43,6 @@ module "rds_db" {
   source = "../modules/rds"
 
   name            = "${var.name}-db"
-  engine          = "aurora-postgresql"
-  engine_version  = "15.12"
   vpc_id          = var.vpc_id
   subnet_ids      = var.subnet_ids
   max_capacity    = var.rds_max_capacity

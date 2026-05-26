@@ -8,10 +8,10 @@ module "db" {
   version = "~> 10.0.2"
 
   name   = var.name
-  engine = var.engine
+  engine = "aurora-postgresql"
   # Cluster in v2 is provisioned with a serverless instance.
   engine_mode    = "provisioned"
-  engine_version = var.engine_version
+  engine_version = "15.15"
 
   vpc_id = var.vpc_id
   security_group_ingress_rules = {
@@ -39,8 +39,11 @@ module "db" {
     seconds_until_auto_pause = var.scale_down_time
   }
   cluster_instance_class = "db.serverless"
-  instances              = { one = {} }
-
+  instances = {
+    one = {
+      auto_minor_version_upgrade = false
+    }
+  }
   manage_master_user_password = false
   master_username             = var.db_username
   master_password_wo          = var.db_password
