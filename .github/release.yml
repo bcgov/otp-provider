@@ -1,25 +1,69 @@
-changelog:
-  exclude:
+name-template: 'Release <RELEASE_VERSION>'
+tag-template: 'v<RELEASE_VERSION>'
+pull-request-limit: 15
+exclude-labels:
+  - 'skip-release'
+  - 'no-release'
+categories:
+  - title: Breaking Changes 🛠
     labels:
-      - ignore-for-release
-  categories:
-    - title: Breaking Changes 🛠
-      labels:
-        - major-change
-        - breaking-change
-    - title: Exciting New Features 🎉
-      labels:
-        - feature
-        - enhancement
-    - title: Bug fixes 🐛
-      labels:
-        - bug
-    - title: Documentation 📚
-      labels:
-        - documentation
-    - title: UI Improvement 💅
-      labels:
-        - ui-improvement
-    - title: Miscellaneous 🧩
-      labels:
-        - '*'
+      - major-change
+      - breaking-change
+  - title: Exciting New Features 🎉
+    labels:
+      - feature
+      - enhancement
+      - new-feature
+  - title: Bug fixes 🐛
+    labels:
+      - bug
+      - fix
+      - hotfix
+  - title: Infrastructure and DevOps 🚀
+    labels:
+      - infrastructure
+      - devops
+  - title: Documentation 📚
+    labels:
+      - documentation
+      - docs
+      - readme
+  - title: UI Improvement 💅
+    labels:
+      - ui-improvement
+      - ux-improvement
+      - design
+      - accessibility
+  - title: Performance Improvements ⚡
+    labels:
+      - performance
+      - optimization
+  - title: Refactoring 🔨
+    labels:
+      - refactoring
+  - title: Miscellaneous 🧩
+    labels:
+      - '*'
+change-template: '- $TITLE #$NUMBER (@$AUTHOR)'
+change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
+version-resolver:
+  major:
+    labels:
+      - 'release:major'
+      - 'major'
+  minor:
+    labels:
+      - 'release:minor'
+      - 'minor'
+  patch:
+    labels:
+      - 'release:patch'
+      - 'patch'
+  default: patch
+template: |
+  ## $RESOLVED_VERSION
+  put in release summary
+  ### Highlights
+  ## Detail
+  ## Uncategorized
+  $CHANGES
