@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region to deploy to"
+  type        = string
+  default     = "ca-central-1"
+}
+
 variable "subnet_a" {
   type        = string
   description = "Value of the name tag for the app subnet in AZ a"
@@ -311,82 +317,22 @@ variable "autoscale_min_capacity" {
   default = 2
 }
 
-variable "dev_use_rba" {
-  type    = string
-  default = "false"
-}
-
-variable "test_use_rba" {
-  type    = string
-  default = "false"
-}
-
-variable "prod_use_rba" {
-  type    = string
-  default = "false"
-}
-
-variable "dev_rba_auth_url" {
-  type    = string
-  default = ""
-}
-
-variable "test_rba_auth_url" {
-  type    = string
-  default = ""
-}
-
-variable "prod_rba_auth_url" {
-  type    = string
-  default = ""
-}
-
-variable "dev_rba_base_url" {
-  type    = string
-  default = ""
-}
-
-variable "test_rba_base_url" {
-  type    = string
-  default = ""
-}
-
-variable "prod_rba_base_url" {
-  type    = string
-  default = ""
-}
-
-variable "dev_rba_client_secret" {
-  type    = string
-  default = ""
-}
-
-variable "test_rba_client_secret" {
-  type    = string
-  default = ""
-}
-
-variable "prod_rba_client_secret" {
-  type    = string
-  default = ""
-}
-
-variable "dev_rba_client_id" {
-  type    = string
-  default = ""
-}
-
-variable "test_rba_client_id" {
-  type    = string
-  default = ""
-}
-
-variable "prod_rba_client_id" {
-  type    = string
-  default = ""
-}
-
 variable "mail_from" {
   type    = string
   default = "bcgov.sso@gov.bc.ca"
+}
+
+variable "ches_token_url" {
+  type    = string
+  default = ""
+}
+
+variable "ches_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "email_provider" {
+  type    = string
+  default = "ches"
 }

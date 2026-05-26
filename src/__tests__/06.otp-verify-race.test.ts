@@ -7,6 +7,10 @@ import { config } from '../config';
 const clientId = 'pub-client';
 const MAX_ATTEMPTS = parseInt(config.OTP_ATTEMPTS_ALLOWED);
 
+afterAll(async () => {
+  await sequelize.close();
+});
+
 const insertActiveOtp = async (email: string, otp: string) => {
   await sequelize.query(
     `INSERT INTO public."Otp"("id", "otp", "email", "active", "clientId", "attempts")
@@ -42,6 +46,11 @@ describe('verifyOtp attempt limit under concurrency', () => {
 });
 
 describe('serializes concurrent OTP request calls', () => {
+  beforeEach(async () => {
+    await cleanUpOtps();
+    await cleanUpEvents();
+  });
+
   afterEach(async () => {
     await cleanUpOtps();
     await cleanUpEvents();
@@ -51,7 +60,12 @@ describe('serializes concurrent OTP request calls', () => {
     const concurrentHits = 10;
     const otpRequests = [];
     for (let i = 0; i < concurrentHits; i++) {
-      otpRequests.push(requestOtp('email', clientId));
+      otpRequests.push(
+        requestOtp('email', clientId).then((req) => {
+          const { transaction } = req;
+          return transaction.commit().then(() => req);
+        }),
+      );
     }
     const resolvedRequests = await Promise.all(otpRequests);
 
@@ -73,15 +87,22 @@ describe('serializes concurrent OTP request calls', () => {
 });
 
 describe('Lockout Handling', () => {
+  afterEach(async () => {
+    await cleanUpOtps();
+    await cleanUpEvents();
+  });
+
   it('Waits for lock release before allowing same client/email combo to request an OTP', async () => {
     // Create an advisory lock
     const transaction = await sequelize.transaction();
     await acquireAdvisoryLock('email', 'client', transaction);
-
     let otpPromiseSettled = false;
 
     // This promise should be blocked due to advisory lock
-    requestOtp('email', 'client').then(() => (otpPromiseSettled = true));
+    requestOtp('email', 'client').then(async ({ transaction }) => {
+      await transaction.commit();
+      otpPromiseSettled = true;
+    });
 
     // Give some time to potentially settle
     await new Promise((r) => setTimeout(r, 200));
@@ -90,7 +111,7 @@ describe('Lockout Handling', () => {
     expect(otpPromiseSettled).toBe(false);
 
     // Verify clearing transaction allows promise to proceed
-    transaction.commit();
+    await transaction.commit();
     await new Promise((r) => setTimeout(r, 200));
     expect(otpPromiseSettled).toBe(true);
   });
@@ -100,8 +121,10 @@ describe('Lockout Handling', () => {
     await acquireAdvisoryLock('email', 'client', transaction);
 
     // Will hang and fail test if locked
-    await requestOtp('email2', 'client');
-    // Commit transaction to allow test to finish
-    transaction.commit();
+    const { transaction: requestOtpTransaction } = await requestOtp('email2', 'client');
+
+    // Commit transactions to allow test to exit
+    await transaction.commit();
+    await requestOtpTransaction.commit();
   });
 });

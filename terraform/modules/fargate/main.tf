@@ -64,18 +64,12 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = var.container_port
         }
       ]
-      environment = [
-        {
-          name  = "AWS_REGION",
-          value = "ca-central-1"
-        }
-      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
           awslogs-group         = var.awslogs-group
-          awslogs-region        = "ca-central-1"
+          awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
       }
@@ -153,39 +147,39 @@ resource "aws_ecs_task_definition" "this" {
           value = random_password.cookie_secret4.result
         },
         {
-          name  = "USE_RBA",
-          value = var.use_rba
-        },
-        {
-          name  = "RBA_CLIENT_SECRET",
-          value = var.rba_client_secret
-        },
-        {
-          name  = "RBA_CLIENT_ID",
-          value = var.rba_client_id
-        },
-        {
-          name  = "RBA_AUTH_URL",
-          value = var.rba_auth_url
-        },
-        {
-          name  = "RBA_BASE_URL",
-          value = var.rba_base_url
-        },
-        {
           name  = "AWS_REGION",
-          value = "ca-central-1"
+          value = var.aws_region
         },
         {
           name  = "MAIL_FROM",
           value = var.mail_from
+        },
+        {
+          name  = "CHES_TOKEN_URL",
+          value = var.ches_token_url
+        },
+        {
+          name  = "CHES_API_URL",
+          value = var.ches_api_url
+        },
+        {
+          name  = "EMAIL_PROVIDER",
+          value = var.email_provider
         }
       ]
       secrets = [
         {
           name      = "JWKS",
           valueFrom = "${var.jwks_secret_version_arn}:JWKS::"
-        }
+        },
+        {
+          name      = "CHES_USERNAME",
+          valueFrom = "${var.jwks_secret_version_arn}:CHES_USERNAME::"
+        },
+        {
+          name      = "CHES_PASSWORD",
+          valueFrom = "${var.jwks_secret_version_arn}:CHES_PASSWORD::"
+        },
       ]
     }
   ])
@@ -204,12 +198,6 @@ resource "aws_ecs_service" "this" {
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
     weight            = 100
-  }
-
-  # RBA: need to allow connections into the RBA service connect config when use_rba is true
-  service_connect_configuration {
-    enabled   = var.use_rba
-    namespace = "rba.local"
   }
 
   network_configuration {

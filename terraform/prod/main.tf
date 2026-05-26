@@ -43,8 +43,6 @@ module "rds_db" {
   source = "../modules/rds"
 
   name            = "${var.name}-db"
-  engine          = "aurora-postgresql"
-  engine_version  = "15.12"
   vpc_id          = var.vpc_id
   subnet_ids      = var.subnet_ids
   max_capacity    = var.rds_max_capacity
@@ -58,6 +56,7 @@ module "fargate" {
   source = "../modules/fargate"
 
   name                        = var.name
+  aws_region                  = var.aws_region
   target_group_arn            = module.alb.target_group_arn
   security_group_ids          = var.security_group_ids
   subnet_ids                  = var.subnet_ids
@@ -88,16 +87,13 @@ module "fargate" {
   otp_resend_interval_minutes = var.otp_resend_interval_minutes
   otp_resends_allowed_per_day = var.otp_resends_allowed_per_day
   jwks_secret_version_arn     = data.aws_secretsmanager_secret_version.otp_provider_secret_version.arn
+  ches_api_url                = var.ches_api_url
+  ches_token_url              = var.ches_token_url
+  email_provider              = var.email_provider
 
   desired_tasks          = var.desired_tasks
   enable_autoscale       = var.enable_autoscale
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
-
-  use_rba           = var.use_rba
-  rba_client_secret = var.rba_client_secret
-  rba_client_id     = var.rba_client_id
-  rba_auth_url      = var.rba_auth_url
-  rba_base_url      = var.rba_base_url
 }

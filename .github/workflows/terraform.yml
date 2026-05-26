@@ -33,11 +33,12 @@ jobs:
       TF_STATE_BUCKET_KEY:
       TF_STATE_BUCKET_REGION:
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetch all history for tags
+      - uses: actions/checkout@v6
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: 1.11.0
+
       - name: Get latest tag
         id: tag
         run: |
@@ -54,6 +55,9 @@ jobs:
           TF_STATE_BUCKET_KEY=otp-provider.tfstate
           TF_STATE_BUCKET_REGION=ca-central-1
           TF_VAR_otp_image_repo=${{ env.IMAGE_REPO }}
+          TF_VAR_ches_api_url=https://ches.api.gov.bc.ca/api/v1/email
+          TF_VAR_ches_token_url=https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+          TF_VAR_email_provider=ches
           EOF
       - name: Set sandbox environment variables
         if: github.event.inputs.environment == 'Sandbox'
@@ -115,12 +119,6 @@ jobs:
           TF_VAR_cpu_target_use=15
           TF_VAR_autoscale_max_capacity=2
           TF_VAR_autoscale_min_capacity=1
-
-          TF_VAR_dev_use_rba=true
-          TF_VAR_dev_rba_client_id=${{secrets.DEV_RBA_CLIENT_ID}}
-          TF_VAR_dev_rba_client_secret=${{secrets.DEV_RBA_CLIENT_SECRET}}
-          TF_VAR_dev_rba_auth_url=${{vars.DEV_RBA_AUTH_URL}}
-          TF_VAR_dev_rba_base_url=${{vars.DEV_RBA_BASE_URL}}
 
           EOF
 
@@ -188,7 +186,7 @@ jobs:
           EOF
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ secrets.SSO_AWS_GH_ACTIONS_DEPLOYER }}
           aws-region: ca-central-1

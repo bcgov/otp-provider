@@ -44,7 +44,11 @@ export const acquireAdvisoryLock = async (email: string, clientId: string, trans
 
 export const requestOtp = async (email: string, clientId: string) => {
   const transaction = await sequelize.transaction();
-  let response: { waitTime: number; error: string; newOtp: string | null } = { waitTime: 0, error: '', newOtp: null };
+  let response: { error: string; newOtp: string | null; transaction: Transaction } = {
+    error: '',
+    newOtp: null,
+    transaction,
+  };
   try {
     await acquireAdvisoryLock(email, clientId, transaction);
     const otps = await getOtpCountAndRecentDate(email, clientId, transaction);
@@ -86,11 +90,9 @@ export const requestOtp = async (email: string, clientId: string) => {
         const otp = await createOtp({ otp: generateOtp(), email, clientId }, transaction);
         response.newOtp = otp.otp;
       } else {
-        response = { ...response, waitTime: currentWaitSeconds, error: 'RESEND_TIMEOUT' };
+        response = { ...response, error: 'RESEND_TIMEOUT' };
       }
     }
-    await transaction.commit();
-    if (!response.error) response.waitTime = await getOtpWaitTime(email, clientId);
     return response;
   } catch (err) {
     await transaction.rollback();
