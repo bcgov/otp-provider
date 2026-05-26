@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - name: Install asdf requirements
         run: |
           sudo apt-get update
@@ -38,6 +36,4 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - uses: wagoid/commitlint-github-action@v5

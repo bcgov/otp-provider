@@ -34,8 +34,6 @@ jobs:
       TF_STATE_BUCKET_REGION:
     steps:
       - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0 # Fetch all history for tags
 
       - uses: hashicorp/setup-terraform@v4
         with:
