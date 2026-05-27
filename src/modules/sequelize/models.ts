@@ -146,28 +146,11 @@ Event.init(
 );
 
 mappedModels.set('ClientConfig', ClientConfig as unknown as DynamicModel);
-
 mappedModels.set('Otp', Otp as unknown as DynamicModel);
-
 mappedModels.set('Event', Event as unknown as DynamicModel);
 
-type FirstPartyModelRegistry = {
-  ClientConfig: typeof ClientConfig;
-  Otp: typeof Otp;
-  Event: typeof Event;
-};
-
-const getRequiredModel = (name: string): DynamicModel => {
-  const model = mappedModels.get(name);
-  if (!model) throw new Error(`Model "${name}" is not registered`);
-  return model;
-};
-
-export const getFirstPartyModel = <K extends keyof FirstPartyModelRegistry>(name: K): FirstPartyModelRegistry[K] =>
-  getRequiredModel(name) as unknown as FirstPartyModelRegistry[K];
-
-export const getOtpModel = () => getFirstPartyModel('Otp');
-export const getEventModel = () => getFirstPartyModel('Event');
-export const getClientConfigModel = () => getFirstPartyModel('ClientConfig');
+export const getOtpModel = () => Otp;
+export const getEventModel = () => Event;
+export const getClientConfigModel = () => ClientConfig;
 
 export default mappedModels;

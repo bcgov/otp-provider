@@ -5,7 +5,7 @@ import { cleanUpEvents, cleanUpOtps, getOtpsByEmail, fetchAttempts, fetchEvents 
 import { config } from '../config';
 
 const clientId = 'pub-client';
-const MAX_ATTEMPTS = parseInt(config.OTP_ATTEMPTS_ALLOWED);
+const MAX_ATTEMPTS = Number.parseInt(config.OTP_ATTEMPTS_ALLOWED);
 
 afterAll(async () => {
   await sequelize.close();

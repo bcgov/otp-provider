@@ -102,18 +102,18 @@ test('Expired OTP Event', async ({ page }, testInfo) => {
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.waitForURL('**/otp');
 
-  const currentOtp = await findActiveOtp(`${testInfo.project.name}@b.com`);
+  const currentOtpRow = await findActiveOtp(`${testInfo.project.name}@b.com`);
 
   // Set OTP timestamp to make it expired
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-  await updateOtp(currentOtp.id, { createdAt: fiveMinutesAgo });
+  await updateOtp(currentOtpRow.id, { createdAt: fiveMinutesAgo });
 
   // Verify at zero to start
   let expiredOtpEvents = await findEvents(email, clientId, 'EXPIRED_OTP');
   expect(expiredOtpEvents.length).toBe(0);
 
   // assert filling in otp creates event
-  await fillOTP(currentOtp.otp, false, page);
+  await fillOTP(currentOtpRow.otp, false, page);
   expiredOtpEvents = await findEvents(email, clientId, 'EXPIRED_OTP');
   expect(expiredOtpEvents.length).toBe(1);
 });

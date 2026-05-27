@@ -12,7 +12,7 @@ import {
 } from '../modules/sequelize/queries/otp';
 import { createEvent } from '../modules/sequelize/queries/event';
 import { QueryTypes, Transaction } from 'sequelize';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 const { OTP_RESEND_INTERVAL_MINUTES, OTP_ATTEMPTS_ALLOWED, NODE_ENV } = config;
 const otpAttemptsAllowed = parseInt(OTP_ATTEMPTS_ALLOWED, 10);
@@ -107,12 +107,12 @@ export const getOtpWaitTime = async (email: string, clientId: string, transactio
 
   const otps = await getOtpCountAndRecentDate(email, clientId, transaction);
 
-  if (otps[0].otpCount === 0) return parseInt(otpResendIntervalMinutes[0]) * delayMultiplier;
+  if (otps[0].otpCount === 0) return Number.parseInt(otpResendIntervalMinutes[0]) * delayMultiplier;
   else if (otps[0].otpCount > otpResendIntervalMinutes.length) return -1;
 
   const lastCreatedAt = otps[0].lastCreatedAt;
   if (!lastCreatedAt) throw new Error('no creation date for OTP');
-  const secondsElapsedSinceLastRequest = Math.ceil((new Date().getTime() - lastCreatedAt.getTime()) / 1000);
+  const secondsElapsedSinceLastRequest = Math.ceil((Date.now() - lastCreatedAt.getTime()) / 1000);
 
   return Math.max(
     parseInt(otpResendIntervalMinutes[otps[0].otpCount - 1]) * delayMultiplier - secondsElapsedSinceLastRequest,
@@ -151,60 +151,58 @@ export const verifyOtp = async (email: string, otp: string, clientId: string) =>
       );
 
       response.error = 'NO_ACTIVE_OTP';
+    } else if (activeOtp.attempts >= otpAttemptsAllowed) {
+      await Promise.all(
+        ['INVALID_OTP', 'MAX_ATTEMPTS'].map(async (eventType) => {
+          await createEvent(
+            {
+              eventType,
+              clientId,
+              email,
+            },
+            transaction,
+          );
+        }),
+      );
+      response.waitTime = await getOtpWaitTime(email, clientId, transaction);
+      response.error = 'EXPIRED_OTP_WITH_RESEND';
+    } else if (activeOtp.otp !== otp) {
+      await updateOtpAttempts({ otp: activeOtp.otp, email, clientId, attempts: activeOtp.attempts + 1 }, transaction);
+      await createEvent(
+        {
+          eventType: 'INVALID_OTP',
+          clientId,
+          email,
+        },
+        transaction,
+      );
+      response.waitTime = await getOtpWaitTime(email, clientId, transaction);
+      response.error = 'INVALID_OTP';
+    } else if (
+      new Date(activeOtp.createdAt).getTime() + parseInt(config.OTP_VALIDITY_MINUTES) * 60 * 1000 <
+      new Date().getTime()
+    ) {
+      await createEvent(
+        {
+          eventType: 'EXPIRED_OTP',
+          clientId,
+          email,
+        },
+        transaction,
+      );
+      response.waitTime = await getOtpWaitTime(email, clientId, transaction);
+      response.error = 'EXPIRED_OTP';
     } else {
-      if (activeOtp.attempts >= otpAttemptsAllowed) {
-        await Promise.all(
-          ['INVALID_OTP', 'MAX_ATTEMPTS'].map(async (eventType) => {
-            await createEvent(
-              {
-                eventType,
-                clientId,
-                email,
-              },
-              transaction,
-            );
-          }),
-        );
-        response.waitTime = await getOtpWaitTime(email, clientId, transaction);
-        response.error = 'EXPIRED_OTP_WITH_RESEND';
-      } else if (activeOtp.otp !== otp) {
-        await updateOtpAttempts({ otp: activeOtp.otp, email, clientId, attempts: activeOtp.attempts + 1 }, transaction);
-        await createEvent(
-          {
-            eventType: 'INVALID_OTP',
-            clientId,
-            email,
-          },
-          transaction,
-        );
-        response.waitTime = await getOtpWaitTime(email, clientId, transaction);
-        response.error = 'INVALID_OTP';
-      } else if (
-        new Date(activeOtp.createdAt).getTime() + parseInt(config.OTP_VALIDITY_MINUTES) * 60 * 1000 <
-        new Date().getTime()
-      ) {
-        await createEvent(
-          {
-            eventType: 'EXPIRED_OTP',
-            clientId,
-            email,
-          },
-          transaction,
-        );
-        response.waitTime = await getOtpWaitTime(email, clientId, transaction);
-        response.error = 'EXPIRED_OTP';
-      } else {
-        await deleteOtpsByEmail(email, clientId, transaction);
+      await deleteOtpsByEmail(email, clientId, transaction);
 
-        await createEvent(
-          {
-            eventType: 'OTP_VERIFIED',
-            clientId,
-            email,
-          },
-          transaction,
-        );
-      }
+      await createEvent(
+        {
+          eventType: 'OTP_VERIFIED',
+          clientId,
+          email,
+        },
+        transaction,
+      );
     }
     await transaction.commit();
     return response;
