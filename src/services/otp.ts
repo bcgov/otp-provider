@@ -25,7 +25,6 @@ const otpResendIntervalMinutes = JSON.parse(OTP_RESEND_INTERVAL_MINUTES || '[]')
  */
 const getAdvisoryLockId = (email: string, clientId: string): string => {
   const hash = createHash('sha256').update(`${email}:${clientId}`).digest();
-  // Convert first 8 bytes to a JavaScript safe integer
   return hash.readBigInt64BE(0).toString();
 };
 
