@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const pasted = e.clipboardData?.getData('text');
       if (!pasted) return;
 
+      clearFormError(errorEl);
       const validPastedChars = pasted.split('').filter((char) => otpValidDigits.includes(char));
       digitInputs.slice(i).forEach((input, k) => {
         if (validPastedChars[k]) input.value = validPastedChars[k];
