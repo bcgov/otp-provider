@@ -179,7 +179,7 @@ export const verifyOtp = async (email: string, otp: string, clientId: string) =>
       response.waitTime = await getOtpWaitTime(email, clientId, transaction);
       response.error = 'INVALID_OTP';
     } else if (
-      new Date(activeOtp.createdAt).getTime() + parseInt(config.OTP_VALIDITY_MINUTES) * 60 * 1000 <
+      new Date(activeOtp.createdAt).getTime() + Number.parseInt(config.OTP_VALIDITY_MINUTES) * 60 * 1000 <
       new Date().getTime()
     ) {
       await createEvent(
