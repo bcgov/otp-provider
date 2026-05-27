@@ -15,7 +15,7 @@ import { QueryTypes, Transaction } from 'sequelize';
 import { createHash } from 'node:crypto';
 
 const { OTP_RESEND_INTERVAL_MINUTES, OTP_ATTEMPTS_ALLOWED, NODE_ENV } = config;
-const otpAttemptsAllowed = parseInt(OTP_ATTEMPTS_ALLOWED, 10);
+const otpAttemptsAllowed = Number.parseInt(OTP_ATTEMPTS_ALLOWED, 10);
 const otpModel = getOtpModel();
 
 const otpResendIntervalMinutes = JSON.parse(OTP_RESEND_INTERVAL_MINUTES || '[]');
