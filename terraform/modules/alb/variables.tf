@@ -10,6 +10,12 @@ variable "alb_listener_arn" {
   default     = ""
 }
 
+variable "alb_arn_suffix" {
+  description = "ALB listener ARN suffix"
+  type        = string
+  default     = ""
+}
+
 variable "vpc_id" {
   description = "VPC id"
   type        = string

@@ -38,6 +38,7 @@ module "dev" {
   aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
+  alb_arn_suffix     = aws_alb.otp_provider_alb.arn_suffix
   custom_domain_name = var.dev_custom_domain_name
   tags               = merge(var.tags, { Environment = "Development", Application = "OTP Provider" })
 
@@ -80,6 +81,7 @@ module "test" {
   aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
+  alb_arn_suffix     = aws_alb.otp_provider_alb.arn_suffix
   custom_domain_name = var.test_custom_domain_name
   tags               = merge(var.tags, { Environment = "Test", Application = "OTP Provider" })
 
@@ -122,6 +124,7 @@ module "prod" {
   aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
+  alb_arn_suffix     = aws_alb.otp_provider_alb.arn_suffix
   custom_domain_name = var.prod_custom_domain_name
   tags               = merge(var.tags, { Environment = "Production", Application = "OTP Provider" })
 

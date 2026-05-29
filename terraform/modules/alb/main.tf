@@ -37,7 +37,7 @@ resource "aws_lb_listener_rule" "this" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "alb_5xx_rate" {
-  alarm_name          = "alb-5xx-rate"
+  alarm_name          = "${var.name}-alb-5xx-rate"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
   datapoints_to_alarm = 3
@@ -55,8 +55,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_rate" {
       stat        = "Sum"
 
       dimensions = {
-        LoadBalancer = var.alb_listener_arn
-        TargetGroup  = aws_alb_target_group.this.arn
+        LoadBalancer = var.alb_arn_suffix
+        TargetGroup  = aws_alb_target_group.this.arn_suffix
       }
     }
   }
@@ -70,8 +70,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_rate" {
       stat        = "Sum"
 
       dimensions = {
-        LoadBalancer = var.alb_listener_arn
-        TargetGroup  = aws_alb_target_group.this.arn
+        LoadBalancer = var.alb_arn_suffix
+        TargetGroup  = aws_alb_target_group.this.arn_suffix
       }
     }
   }

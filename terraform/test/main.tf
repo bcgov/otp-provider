@@ -25,6 +25,7 @@ module "alb" {
   tags                   = var.tags
   custom_domain_name     = var.custom_domain_name
   alb_listener_arn       = var.alb_listener_arn
+  alb_arn_suffix         = var.alb_arn_suffix
   listener_rule_priority = 9
 }
 
