@@ -25,6 +25,10 @@ module "alb" {
   tags                   = var.tags
   custom_domain_name     = var.custom_domain_name
   alb_listener_arn       = var.alb_listener_arn
+  alb_arn_suffix         = var.alb_arn_suffix
+  enable_alb_alarm       = var.enable_alb_alarm
+  enable_alerts          = var.enable_alerts
+  alert_webhook_url      = var.alert_webhook_url
   listener_rule_priority = 9
 }
 

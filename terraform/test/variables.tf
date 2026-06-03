@@ -17,6 +17,11 @@ variable "alb_listener_arn" {
   default     = ""
 }
 
+variable "alb_arn_suffix" {
+  type    = string
+  default = ""
+}
+
 variable "custom_domain_name" {
   description = "Custom domain name of OTP provider"
   type        = string
@@ -242,4 +247,22 @@ variable "ches_token_url" {
 variable "email_provider" {
   type    = string
   default = ""
+}
+
+variable "enable_alb_alarm" {
+  description = "Create the ALB 5XX error-rate CloudWatch metric alarm"
+  type        = bool
+  default     = false
+}
+
+variable "enable_alerts" {
+  description = "Enable SNS alerting for CloudWatch alarms"
+  type        = bool
+  default     = false
+}
+
+variable "alert_webhook_url" {
+  description = "HTTPS webhook URL to receive CloudWatch alarm notifications via SNS"
+  type        = string
+  default     = ""
 }

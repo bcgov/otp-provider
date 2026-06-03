@@ -38,6 +38,7 @@ module "dev" {
   aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
+  alb_arn_suffix     = aws_alb.otp_provider_alb.arn_suffix
   custom_domain_name = var.dev_custom_domain_name
   tags               = merge(var.tags, { Environment = "Development", Application = "OTP Provider" })
 
@@ -68,6 +69,10 @@ module "dev" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
+  enable_alb_alarm  = var.dev_enable_alb_alarm
+  enable_alerts     = var.dev_enable_alerts
+  alert_webhook_url = var.dev_alert_webhook_url
+
   ches_api_url   = var.ches_api_url
   ches_token_url = var.ches_token_url
   email_provider = var.email_provider
@@ -80,6 +85,7 @@ module "test" {
   aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
+  alb_arn_suffix     = aws_alb.otp_provider_alb.arn_suffix
   custom_domain_name = var.test_custom_domain_name
   tags               = merge(var.tags, { Environment = "Test", Application = "OTP Provider" })
 
@@ -110,6 +116,10 @@ module "test" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
+  enable_alb_alarm  = var.test_enable_alb_alarm
+  enable_alerts     = var.test_enable_alerts
+  alert_webhook_url = var.test_alert_webhook_url
+
   ches_api_url   = var.ches_api_url
   ches_token_url = var.ches_token_url
   email_provider = var.email_provider
@@ -122,6 +132,7 @@ module "prod" {
   aws_region         = var.aws_region
   vpc_id             = data.aws_vpc.selected.id
   alb_listener_arn   = aws_alb_listener.otp_provider_alb_listener.arn
+  alb_arn_suffix     = aws_alb.otp_provider_alb.arn_suffix
   custom_domain_name = var.prod_custom_domain_name
   tags               = merge(var.tags, { Environment = "Production", Application = "OTP Provider" })
 
@@ -151,6 +162,10 @@ module "prod" {
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
+
+  enable_alb_alarm  = var.prod_enable_alb_alarm
+  enable_alerts     = var.prod_enable_alerts
+  alert_webhook_url = var.prod_alert_webhook_url
 
   ches_api_url   = var.ches_api_url
   ches_token_url = var.ches_token_url

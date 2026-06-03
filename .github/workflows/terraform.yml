@@ -179,6 +179,10 @@ jobs:
           TF_VAR_prod_desired_tasks=2
           TF_VAR_prod_enable_autoscale=true
 
+          TF_VAR_prod_enable_alb_alarm = true
+          TF_VAR_prod_enable_alerts = true
+          TF_VAR_prod_alert_webhook_url = ${{ secrets.alert_webhook_url }}
+
           TF_VAR_cpu_target_use=15
           TF_VAR_autoscale_max_capacity=4
           TF_VAR_autoscale_min_capacity=2
