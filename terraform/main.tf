@@ -69,6 +69,10 @@ module "dev" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
+  enable_alb_alarm  = var.dev_enable_alb_alarm
+  enable_alerts     = var.dev_enable_alerts
+  alert_webhook_url = var.dev_alert_webhook_url
+
   ches_api_url   = var.ches_api_url
   ches_token_url = var.ches_token_url
   email_provider = var.email_provider
@@ -112,6 +116,10 @@ module "test" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
+  enable_alb_alarm  = var.test_enable_alb_alarm
+  enable_alerts     = var.test_enable_alerts
+  alert_webhook_url = var.test_alert_webhook_url
+
   ches_api_url   = var.ches_api_url
   ches_token_url = var.ches_token_url
   email_provider = var.email_provider
@@ -154,6 +162,10 @@ module "prod" {
   cpu_target_use         = var.cpu_target_use
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
+
+  enable_alb_alarm  = var.prod_enable_alb_alarm
+  enable_alerts     = var.prod_enable_alerts
+  alert_webhook_url = var.prod_alert_webhook_url
 
   ches_api_url   = var.ches_api_url
   ches_token_url = var.ches_token_url

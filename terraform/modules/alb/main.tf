@@ -36,15 +36,31 @@ resource "aws_lb_listener_rule" "this" {
   }
 }
 
+resource "aws_sns_topic" "alb_alerts" {
+  count = var.enable_alerts ? 1 : 0
+  name  = "${var.name}-alb-alerts"
+  tags  = var.tags
+}
+
+resource "aws_sns_topic_subscription" "alb_alerts_webhook" {
+  count                = var.enable_alerts ? 1 : 0
+  topic_arn            = aws_sns_topic.alb_alerts[0].arn
+  protocol             = "https"
+  endpoint             = var.alert_webhook_url
+  raw_message_delivery = true
+}
+
 resource "aws_cloudwatch_metric_alarm" "alb_5xx_rate" {
+  count               = var.enable_alb_alarm ? 1 : 0
   alarm_name          = "${var.name}-alb-5xx-rate"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 5
-  datapoints_to_alarm = 3
+  datapoints_to_alarm = 2
   threshold           = 5
   treat_missing_data  = "notBreaching"
 
   alarm_description = "5XX error rate > 5%"
+  alarm_actions     = compact([one(aws_sns_topic.alb_alerts[*].arn)])
 
   metric_query {
     id = "m1"

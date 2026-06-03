@@ -282,6 +282,21 @@ variable "dev_enable_autoscale" {
   default = false
 }
 
+variable "dev_enable_alb_alarm" {
+  type    = bool
+  default = false
+}
+
+variable "dev_enable_alerts" {
+  type    = bool
+  default = false
+}
+
+variable "dev_alert_webhook_url" {
+  type    = string
+  default = ""
+}
+
 variable "test_desired_tasks" {
   type    = number
   default = 1
@@ -292,6 +307,21 @@ variable "test_enable_autoscale" {
   default = false
 }
 
+variable "test_enable_alb_alarm" {
+  type    = bool
+  default = false
+}
+
+variable "test_enable_alerts" {
+  type    = bool
+  default = false
+}
+
+variable "test_alert_webhook_url" {
+  type    = string
+  default = ""
+}
+
 variable "prod_desired_tasks" {
   type    = number
   default = 2
@@ -300,6 +330,21 @@ variable "prod_desired_tasks" {
 variable "prod_enable_autoscale" {
   type    = bool
   default = false
+}
+
+variable "prod_enable_alb_alarm" {
+  type    = bool
+  default = false
+}
+
+variable "prod_enable_alerts" {
+  type    = bool
+  default = false
+}
+
+variable "prod_alert_webhook_url" {
+  type    = string
+  default = ""
 }
 
 variable "cpu_target_use" {
