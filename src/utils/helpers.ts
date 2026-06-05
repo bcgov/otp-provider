@@ -1,5 +1,6 @@
 import * as crypto from 'crypto';
 import { config } from '../config';
+import { getInteractionById } from '../modules/sequelize/queries/interaction';
 import type { NextFunction, Response, Request } from 'express';
 
 const { HASH_SALT } = config;
@@ -21,6 +22,26 @@ export const hashEmail = (email: string) => {
   const salt = Buffer.from(HASH_SALT);
   const combined = Buffer.concat([Buffer.from(email, 'utf8'), salt]);
   return crypto.createHash('sha256').update(combined).digest('hex');
+};
+
+/** Returns the URL unchanged if it has an http/https scheme, otherwise returns ''. */
+export const safeHttpUrl = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol) ? url : '';
+  } catch {
+    return '';
+  }
+};
+
+/** Looks up the client_home_url for an interaction UID and validates its scheme. */
+export const getClientHomeUrl = async (uid: string): Promise<string> => {
+  try {
+    const interaction = await getInteractionById(uid);
+    return safeHttpUrl((interaction as any)?.data?.params?.client_home_url || '');
+  } catch {
+    return '';
+  }
 };
 
 export const setNoCache = (req: Request, res: Response, next: NextFunction) => {

@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response, urlencoded } from 'express';
 import Provider from 'oidc-provider';
 import { authorize, generateOtp, login, abortLogin } from '../controllers/auth-controller';
-import { LoginTimeoutError, parseForwardedHeader, setNoCache } from '../utils/helpers';
+import { LoginTimeoutError, parseForwardedHeader, setNoCache, getClientHomeUrl } from '../utils/helpers';
 import { errors } from 'oidc-provider';
 import logger from '../modules/winston.config';
 import { UAParser } from 'ua-parser-js';
@@ -14,7 +14,7 @@ export const oidcRouter = async (oidcProvider: Provider) => {
   oidcRouter.post('/:uid/otp', setNoCache, body, await generateOtp(oidcProvider));
   oidcRouter.post('/:uid/login', setNoCache, body, await login(oidcProvider));
   oidcRouter.post('/:uid/abort', await abortLogin(oidcProvider));
-  oidcRouter.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  oidcRouter.use(async (err: Error, req: Request, res: Response, next: NextFunction) => {
     if (err) {
       try {
         const ua = UAParser(req.headers['user-agent']);
@@ -65,9 +65,18 @@ export const oidcRouter = async (oidcProvider: Provider) => {
         errorMessage = 'User session could not be found.';
         errorStatus = err.status || 400;
       }
+
+      let clientHomeUrl = '';
+      const uid = req.params?.uid || req.path.split('/').filter(Boolean)[0];
+      if (uid && typeof uid === 'string') {
+        clientHomeUrl = await getClientHomeUrl(uid);
+      }
+
       return res.status(errorStatus).render('error', {
-        title: errorStatus,
-        message: errorMessage,
+        title: "We couldn't sign you in",
+        message:
+          'There was a problem completing your sign-in request. Please return to the application and try signing in again.',
+        clientHomeUrl,
       });
     }
   });
