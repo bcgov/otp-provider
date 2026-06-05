@@ -21,6 +21,7 @@ export const getConfig = (): Configuration => {
     },
     // Overrride node-oidc default page with the EJS error template
     renderError: async (ctx, out, error) => {
+      // If error occurs on /auth, client_home_url will be in query params. If error occurs after it can be grabbed from interaction details.
       let clientHomeUrl = safeHttpUrl((ctx.query?.client_home_url as string) || '');
       if (!clientHomeUrl) {
         const uidMatch = ctx.request.url.match(/\/interaction\/([^/]+)/);
