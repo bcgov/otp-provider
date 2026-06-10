@@ -38,7 +38,7 @@ export const safeHttpUrl = (url: string): string => {
 export const getClientHomeUrl = async (uid: string): Promise<string> => {
   try {
     const interaction = await getInteractionById(uid);
-    return safeHttpUrl((interaction as any)?.data?.params?.client_home_url || '');
+    return safeHttpUrl(interaction?.data?.params?.client_home_url || '');
   } catch {
     return '';
   }
