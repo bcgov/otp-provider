@@ -1,12 +1,10 @@
 import { test, expect } from '@playwright/test';
-import models from '../src/modules/sequelize/models';
 import { initURL } from './util';
-
-const otpModel = models.get('Otp');
+import { cleanupOtps } from './db';
 
 test.beforeEach(async () => {
   // Reset all OTPs between tests
-  await otpModel.destroy({ where: {} });
+  await cleanupOtps();
 });
 
 test('Email Validations', async ({ page }, testInfo) => {

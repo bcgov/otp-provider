@@ -11,7 +11,8 @@
     "allowSyntheticDefaultImports": true,
     "outDir": "./build",
     "rootDir": "./src",
-    "lib": ["esnext", "dom"]
+    "lib": ["esnext", "dom"],
+    "types": ["jest"]
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "build"]

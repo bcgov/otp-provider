@@ -1,8 +1,13 @@
-import { QueryOptions } from 'sequelize';
-import models from '../models';
+import { FindOptions } from 'sequelize';
+import { getClientConfigModel } from '../models';
 
-export const getClients = async (attributes: string[] = [], options: QueryOptions = { raw: true }) => {
-  return await models.get('ClientConfig').findAll({
+const clientConfigModel = getClientConfigModel();
+
+export const getClients = async (
+  attributes: string[] = [],
+  options: Omit<FindOptions, 'attributes'> = { raw: true },
+) => {
+  return await clientConfigModel.findAll({
     attributes,
     ...options,
   });
