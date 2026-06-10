@@ -43,7 +43,7 @@
 }
 
 .card {
-  @apply bg-white mt-32 py-24 px-32 flex flex-col gap-24 items-center w-[95dvw] max-w-500;
+  @apply bg-white mt-32 py-24 px-32 flex flex-col gap-24 items-center w-[95dvw] max-w-500 wrap-anywhere;
 }
 
 #code-digit-3::after {

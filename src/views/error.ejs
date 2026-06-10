@@ -3,6 +3,9 @@
     <div class="card">
       <h2 class="text-lg font-bold"><%= title %></h2>
       <p><%= message %></p>
+      <% if (typeof clientHomeUrl !== 'undefined' && clientHomeUrl) { %>
+        <p class="mt-4">Return to <a class="text-blue-600 underline hover:text-blue-800 visited:text-purple-600" href="<%= clientHomeUrl %>"><%= clientHomeUrl %></a></p>
+      <% } %>
     </div>
   </div>
 </body>

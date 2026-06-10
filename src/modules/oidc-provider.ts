@@ -2,7 +2,7 @@ import { Client, ClientMetadata, Configuration, errors, KoaContextWithOIDC } fro
 import { config } from '../config';
 import SequelizeAdapter from './sequelize/adapter';
 import Keygrip from 'keygrip';
-import { isOrigin, hashEmail } from '../utils/helpers';
+import { isOrigin, hashEmail, safeHttpUrl, getClientHomeUrl } from '../utils/helpers';
 import { getClients } from './sequelize/queries/client';
 import type { Response } from 'express';
 import app from '../app';
@@ -21,18 +21,29 @@ export const getConfig = (): Configuration => {
     },
     // Overrride node-oidc default page with the EJS error template
     renderError: async (ctx, out, error) => {
-      app.render(
-        'error',
-        {
-          title: 'statusCode' in error ? error.statusCode : 'Unknown Error',
-          message:
-            'error_description' in error ? error.error_description : 'The server has encountered an unknown error.',
-        },
-        (_, html) => {
-          ctx.type = 'text/html';
-          ctx.body = html;
-        },
-      );
+      // If error occurs on /auth, client_home_url will be in query params. If error occurs after it can be grabbed from interaction details.
+      let clientHomeUrl = safeHttpUrl((ctx.query?.client_home_url as string) || '');
+      if (!clientHomeUrl) {
+        const uidMatch = ctx.request.url.match(/\/interaction\/([^/]+)/);
+        if (uidMatch) {
+          clientHomeUrl = await getClientHomeUrl(uidMatch[1]);
+        }
+      }
+
+      const html = await new Promise<string>((resolve, reject) => {
+        app.render(
+          'error',
+          {
+            title: "We couldn't sign you in",
+            message:
+              'There was a problem completing your sign-in request. Please return to the application and try signing in again.',
+            clientHomeUrl,
+          },
+          (err, rendered) => (err ? reject(err) : resolve(rendered)),
+        );
+      });
+      ctx.type = 'text/html';
+      ctx.body = html;
     },
     pkce: {
       required: (_ctx: KoaContextWithOIDC, client: Client) => {
@@ -99,6 +110,7 @@ export const getConfig = (): Configuration => {
         },
       },
     },
+    extraParams: { client_home_url: null },
     scopes: ['openid', 'email'], // scopes allowed for a client
     extraClientMetadata: {
       properties: ['clientUri', corsProp], //using the clienturi property as the resource indicator
