@@ -11,6 +11,14 @@ data "aws_secretsmanager_secret_version" "otp_provider_secret_version" {
   secret_id = aws_secretsmanager_secret.otp_provider_secret.id
 }
 
+module "iam" {
+  source = "../modules/iam"
+
+  name       = var.name
+  tags       = var.tags
+  secret_arn = aws_secretsmanager_secret.otp_provider_secret.arn
+}
+
 module "acm" {
   source = "../modules/acm"
 
@@ -64,8 +72,8 @@ module "fargate" {
   target_group_arn            = module.alb.target_group_arn
   security_group_ids          = var.security_group_ids
   subnet_ids                  = var.subnet_ids
-  task_execution_role_arn     = var.task_execution_role_arn
-  task_role_arn               = var.task_role_arn
+  task_execution_role_arn     = module.iam.task_execution_role_arn
+  task_role_arn               = module.iam.task_role_arn
   task_cpu                    = var.task_cpu
   task_memory                 = var.task_memory
   container_cpu               = var.container_cpu

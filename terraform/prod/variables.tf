@@ -162,18 +162,6 @@ variable "subnet_ids" {
   default     = []
 }
 
-variable "task_execution_role_arn" {
-  description = "ECS task execution role"
-  type        = string
-  default     = ""
-}
-
-variable "task_role_arn" {
-  description = "ECS task role"
-  type        = string
-  default     = ""
-}
-
 variable "image_repo" {
   description = "Name of the image repository for otp provider"
   type        = string
