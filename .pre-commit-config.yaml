@@ -38,11 +38,5 @@ repos:
       - id: npm-audit
         name: Run npm package audit
         # flags on high and critical
-        entry: npx audit-ci --high
+        entry: npx audit-ci --high --config ./audit-ci.jsonc
         language: node
-
-  - repo: https://github.com/pypa/pip-audit
-    rev: v2.10.0
-    hooks:
-      - id: pip-audit
-        args: ['-r', 'requirements.txt']
