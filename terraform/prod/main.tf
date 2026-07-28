@@ -7,10 +7,6 @@ resource "aws_secretsmanager_secret" "otp_provider_secret" {
   name = "OTPProviderSecretProd"
 }
 
-data "aws_secretsmanager_secret_version" "otp_provider_secret_version" {
-  secret_id = aws_secretsmanager_secret.otp_provider_secret.id
-}
-
 module "iam" {
   source = "../modules/iam"
 
@@ -98,7 +94,7 @@ module "fargate" {
   otp_attempts_allowed        = var.otp_attempts_allowed
   otp_resend_interval_minutes = var.otp_resend_interval_minutes
   otp_resends_allowed_per_day = var.otp_resends_allowed_per_day
-  jwks_secret_version_arn     = data.aws_secretsmanager_secret_version.otp_provider_secret_version.arn
+  jwks_secret_version_arn     = aws_secretsmanager_secret.otp_provider_secret.arn
   ches_api_url                = var.ches_api_url
   ches_token_url              = var.ches_token_url
   email_provider              = var.email_provider
