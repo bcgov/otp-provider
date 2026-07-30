@@ -5,6 +5,8 @@ on:
     branches:
       - 'dev'
       - 'main'
+    paths-ignore:
+      - '**/terraform/**'
 
 env:
   IMAGE_NAME: bcgov/otp-provider
