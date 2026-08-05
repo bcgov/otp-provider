@@ -3,13 +3,17 @@ import sequelize from '../../modules/sequelize/config';
 import { QueryTypes } from 'sequelize';
 
 export const getOtpsByEmail = async (email: string) => {
-  return await sequelize.query(`SELECT * from public."Otp" where email='${email}'`, {
+  return await sequelize.query(`SELECT * from public."Otp" where email='${email}' order by "createdAt" desc`, {
     type: QueryTypes.SELECT,
   });
 };
 
 export const cleanUpOtps = async () => {
   await sequelize.query(`TRUNCATE TABLE public."Otp"`);
+};
+
+export const cleanUpEvents = async () => {
+  await sequelize.query(`TRUNCATE TABLE public."Event"`);
 };
 
 export const createOtps = async (email: string, count: number, clientId: string) => {
@@ -56,4 +60,23 @@ export const createTestClients = async () => {
         '{http://localhost:3000}',
         'none')`);
   });
+};
+
+export const fetchAttempts = async (email: string): Promise<number> => {
+  const rows = (await sequelize.query(`SELECT attempts FROM public."Otp" WHERE email= :email AND active='true'`, {
+    type: QueryTypes.SELECT,
+    replacements: { email },
+  })) as { attempts: number }[];
+  return Number(rows[0]?.attempts ?? 0);
+};
+
+export const fetchEvents = async (email: string, clientId: string, eventType: string): Promise<object[]> => {
+  const rows = await sequelize.query(
+    `SELECT * FROM public."Event" WHERE email= :email AND "clientId"= :clientId AND "eventType"= :eventType`,
+    {
+      type: QueryTypes.SELECT,
+      replacements: { email, clientId, eventType },
+    },
+  );
+  return rows;
 };

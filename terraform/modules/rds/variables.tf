@@ -4,18 +4,6 @@ variable "name" {
   default     = "otp-db"
 }
 
-variable "engine" {
-  description = "RDS engine"
-  type        = string
-  default     = "aurora-postgresql"
-}
-
-variable "engine_version" {
-  description = "RDS engine version"
-  type        = string
-  default     = "15.12"
-}
-
 variable "vpc_id" {
   description = "VPC id"
   type        = string

@@ -1,0 +1,16 @@
+{
+  "name": "otp-stuff",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jwks-generator.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jose": "^6.2.2",
+    "node-jose": "^2.2.0"
+  }
+}

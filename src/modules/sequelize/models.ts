@@ -1,5 +1,5 @@
 import sequelize from './config';
-import Sequelize from 'sequelize';
+import Sequelize, { CreationOptional, InferAttributes, InferCreationAttributes, Model, ModelStatic } from 'sequelize';
 import { models } from './umzug';
 
 const grantable = new Set([
@@ -10,7 +10,10 @@ const grantable = new Set([
   'BackchannelAuthenticationRequest',
 ]);
 
-const mappedModels = models.reduce((map, name) => {
+type DynamicModel = ModelStatic<Model>;
+type AppModelMap = Map<string, DynamicModel>;
+
+const mappedModels = models.reduce<AppModelMap>((map, name) => {
   map.set(
     name,
     sequelize.define(name, {
@@ -25,11 +28,25 @@ const mappedModels = models.reduce((map, name) => {
   );
 
   return map;
-}, new Map());
+}, new Map<string, DynamicModel>());
 
-mappedModels.set(
-  'ClientConfig',
-  sequelize.define('ClientConfig', {
+export class ClientConfig extends Model {
+  declare id: CreationOptional<string>;
+  declare clientId: string;
+  declare clientSecret: CreationOptional<string | null>;
+  declare grantTypes: CreationOptional<string[]>;
+  declare redirectUris: CreationOptional<string[]>;
+  declare scope: CreationOptional<string | null>;
+  declare responseTypes: CreationOptional<string[]>;
+  declare clientUri: CreationOptional<string | null>;
+  declare postLogoutRedirectUris: CreationOptional<string[]>;
+  declare tokenEndpointAuthMethod: CreationOptional<string | null>;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+}
+
+ClientConfig.init(
+  {
     id: { type: Sequelize.STRING, primaryKey: true },
     applicationType: { type: Sequelize.STRING },
     clientId: { type: Sequelize.STRING, allowNull: false, unique: true },
@@ -57,12 +74,23 @@ mappedModels.set(
     scope: { type: Sequelize.STRING },
     createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
-  }),
+  },
+  { sequelize, modelName: 'ClientConfig', tableName: 'ClientConfig', timestamps: true },
 );
 
-mappedModels.set(
-  'Otp',
-  sequelize.define('Otp', {
+export class Otp extends Model<InferAttributes<Otp>, InferCreationAttributes<Otp>> {
+  declare id: CreationOptional<string>;
+  declare otp: string;
+  declare email: string;
+  declare attempts: CreationOptional<number>;
+  declare active: CreationOptional<boolean>;
+  declare createdAt: CreationOptional<Date>;
+  declare updatedAt: CreationOptional<Date>;
+  declare clientId: string;
+}
+
+Otp.init(
+  {
     id: { type: Sequelize.STRING, primaryKey: true, defaultValue: Sequelize.UUIDV4 },
     otp: { type: Sequelize.STRING, allowNull: false },
     email: { type: Sequelize.STRING, allowNull: false },
@@ -71,42 +99,58 @@ mappedModels.set(
     createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.NOW },
     clientId: { type: Sequelize.STRING, allowNull: false },
-  }),
+  },
+  { sequelize, modelName: 'Otp', tableName: 'Otp', timestamps: true },
 );
 
-mappedModels.set(
-  'Event',
-  sequelize.define(
-    'Event',
-    {
-      id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      eventType: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      timestamp: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.NOW,
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      clientId: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
+export class Event extends Model<InferAttributes<Event>, InferCreationAttributes<Event>> {
+  declare id: CreationOptional<number>;
+  declare eventType: string;
+  declare timestamp: CreationOptional<Date>;
+  declare email: string;
+  declare clientId: string;
+}
+
+Event.init(
+  {
+    id: {
+      allowNull: false,
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    {
-      timestamps: false,
+    eventType: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
-  ),
+    timestamp: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: Sequelize.NOW,
+    },
+    email: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    clientId: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'Event',
+    tableName: 'Event',
+    timestamps: false,
+  },
 );
+
+mappedModels.set('ClientConfig', ClientConfig as unknown as DynamicModel);
+mappedModels.set('Otp', Otp as unknown as DynamicModel);
+mappedModels.set('Event', Event as unknown as DynamicModel);
+
+export const getOtpModel = () => Otp;
+export const getEventModel = () => Event;
+export const getClientConfigModel = () => ClientConfig;
 
 export default mappedModels;

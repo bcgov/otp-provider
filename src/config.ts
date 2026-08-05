@@ -10,14 +10,10 @@ export const config = {
   DB_USERNAME: process.env.DB_USERNAME || 'postgres',
   DB_PASSWORD: process.env.DB_PASSWORD || 'postgres',
   DB_NAME: process.env.DB_NAME || 'otp',
-  DB_PORT: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 5432,
-  CHES_TOKEN_URL: process.env.CHES_TOKEN_URL || '',
-  CHES_API_URL: process.env.CHES_API_URL || '',
-  CHES_USERNAME: process.env.CHES_USERNAME || '',
-  CHES_PASSWORD: process.env.CHES_PASSWORD || '',
+  DB_PORT: process.env.DB_PORT ? Number.parseInt(process.env.DB_PORT, 10) : 5432,
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
   NODE_ENV: process.env.NODE_ENV || 'development',
-  PORT: process.env.PORT ? parseInt(process.env.PORT, 10) : 3000,
+  PORT: process.env.PORT ? Number.parseInt(process.env.PORT, 10) : 3000,
   JWKS: process.env.JWKS ? JSON.parse(process.env.JWKS) : {},
   CORS_ORIGINS: process.env.CORS_ORIGINS || '',
   DB_CLEANUP_CRON: process.env.DB_CLEANUP_CRON || '0 1 * * *',
@@ -27,4 +23,11 @@ export const config = {
   OTP_RESENDS_ALLOWED_PER_DAY: process.env.OTP_RESENDS_ALLOWED_PER_DAY || '4',
   OTP_RESEND_INTERVAL_MINUTES: process.env.OTP_RESEND_INTERVAL_MINUTES || '[1,2,5,25]',
   COOKIE_SECRETS: process.env.COOKIE_SECRETS || 's3cr3t1,s3cr3t1,s3cr3t2',
+  CHES_TOKEN_URL:
+    process.env.CHES_TOKEN_URL || 'https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token',
+  CHES_API_URL: process.env.CHES_API_URL || 'https://ches.api.gov.bc.ca/api/v1/email',
+  CHES_USERNAME: process.env.CHES_USERNAME || '',
+  CHES_PASSWORD: process.env.CHES_PASSWORD || '',
+  EMAIL_PROVIDER: process.env.EMAIL_PROVIDER || 'ches', // or 'ses'
+  MAIL_FROM: process.env.MAIL_FROM || 'bcgov.sso@gov.bc.ca',
 };

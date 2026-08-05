@@ -67,3 +67,7 @@ const config: any = {
 const sequelize = new Sequelize(config[NODE_ENV || 'development']);
 
 export default sequelize;
+
+export function query(arg0: string, arg1: { replacements: { email: string }; type: QueryTypes }): any {
+  throw new Error('Function not implemented.');
+}

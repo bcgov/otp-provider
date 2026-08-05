@@ -59,15 +59,42 @@ OTP Provider -> Authenticates user via email-based OTP and returns identity asse
 ### Steps
 
 1. Create `.env` from `.env.example` and update all the values
-2. Run `yarn` to install all the dependencies
-3. Run `yarn dev` to start a local server
-4. Run `yarn build` to create a javascript bundle for production deployment
-5. Run `yarn start` to run the javascript bundle
-6. Run `yarn tailwind` to compile the css (will hot reload)
+2. Generate a local `JWKS={}` env variable for the `.env` file using the the script in the [./jwks-generator](./jwks-generator/) folder.
+3. Run `yarn` to install all the dependencies
+4. Run `yarn tailwind` on first build of project otherwise yarn build will fail due to missing css files.
+5. Run `yarn dev` to start a local server
+6. Run `yarn build` to create a javascript bundle for production deployment
+7. Run `yarn start` to run the javascript bundle
+8. Run `yarn tailwind` to compile the css (will hot reload)
+
+## AWS Simple Email Service
+
+### Setup
+
+- Create a tenant `otp`
+- Create an email identity under the tenant and complete verification
+- Create a domain identity under the tenant and request right person from `Digital Workplace and Collaboration Services Branch` to get the DKIM, DMARC and custom MAIL FROM CNAME records in NNR
+- Ensure all the records are successfully verified and then request production access. The production access requires below details:
+  - Mail Type: `TRANSACTIONAL`
+  - Website URL: `*/.well-known/openid-configuration`
+  - Usecase Description: One time passcode identity provider
+- Enable `Virtual Deliverability Manager` with click tracking disabled. The click tracking adds 1 X 1 pixel image to every email sent to users and most of the email providers display a warning on top of the email so we had to disable it
+- (Optional) Create a configuration set to override any settings pertaining to reputation metrics, suppression list, auto validation, archiving options. Assign it to the tenant
+- The OTP provider running as an ECS Task requires appropriate IAM permissions added to its Task Role for it to be able to send emails. Permissions include `sendEmail` and `sendRawEmail`
 
 ## Local Env
 
 The app runs locally using tsup to compile the server and client files into the `build` directory. To recompile the css on the fly, run `yarn tailwind` in another terminal.
+
+## Local Unit tests
+
+The local tests are built and run using:
+
+`make test_db`
+
+and
+
+`make unit_test`
 
 ## Test Data
 
@@ -126,7 +153,7 @@ End to end testing is done with playwright. As prerequisite the end-to-end tests
 
 - `psql -c 'create database otp_test'`;
 - `yarn build && DB_NAME=otp_test node build/migrate.js`
-- `psql -d otp_test -f e2e/seed.sql`
+- `psql -U postgres -d otp_test -f e2e/seed.sql`
 
 This is only needed the first time to initialize the db. To run the tests run `yarn test:e2e`
 

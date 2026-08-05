@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region to deploy to"
+  type        = string
+  default     = "ca-central-1"
+}
+
 variable "name" {
   description = "Name of the task"
   type        = string
@@ -58,36 +64,10 @@ variable "node_env" {
   default     = "development"
 }
 
-variable "ches_username" {
-  type        = string
-  description = "CHES account username"
-  default     = ""
-  sensitive   = true
-}
-
-variable "ches_password" {
-  type        = string
-  description = "CHES account password"
-  default     = ""
-  sensitive   = true
-}
-
-variable "ches_api_url" {
-  type        = string
-  description = "CHES API url"
-  default     = "https://ches.api.gov.bc.ca/api/v1/email"
-}
-
-variable "ches_token_url" {
-  type        = string
-  description = "CHES token url"
-  default     = "https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
-}
-
 variable "app_url" {
   type        = string
   description = "App url"
-  default     = "http://localhost:8080"
+  default     = "http://localhost:3000"
 }
 
 variable "log_level" {
@@ -230,4 +210,24 @@ variable "autoscale_max_capacity" {
 variable "autoscale_min_capacity" {
   type    = number
   default = 2
+}
+
+variable "mail_from" {
+  type    = string
+  default = "bcgov.sso@gov.bc.ca"
+}
+
+variable "ches_token_url" {
+  type    = string
+  default = ""
+}
+
+variable "ches_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "email_provider" {
+  type    = string
+  default = "ches"
 }

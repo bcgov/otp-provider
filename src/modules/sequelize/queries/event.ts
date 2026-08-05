@@ -1,7 +1,7 @@
 import { Transaction } from 'sequelize';
-import models from '../models';
+import { getEventModel } from '../models';
 
-const eventModel = models.get('Event');
+const eventModel = getEventModel();
 
 type EventType = {
   eventType: string;

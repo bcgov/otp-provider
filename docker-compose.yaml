@@ -23,9 +23,7 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: otp
       NODE_ENV: development
-      APP_URL: http://localhost:8080
-      CHES_EMAIL_URL: https://ches.api.gov.bc.ca/api/v1/email
-      CHES_TOKEN_URL: https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+      APP_URL: http://localhost:3000
       LOG_LEVEL: debug
       COOKIE_SECRETS: 's3cr3t1,s3cr3t1,s3cr3t2'
     ports:

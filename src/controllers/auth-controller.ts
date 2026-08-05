@@ -61,9 +61,14 @@ export const generateOtp = async (oidcProvider: Provider) => {
           });
         }
 
-        const { waitTime, error, newOtp } = await requestOtp(email, clientID as string);
+        let waitTime = 0;
+
+        const { error, newOtp, transaction } = await requestOtp(email, clientID as string);
 
         if (error) {
+          // commits events transaction
+          await transaction.commit();
+          waitTime = error === 'RESEND_TIMEOUT' ? await getOtpWaitTime(email, clientID as string) : 0;
           return res.render(`signin`, {
             uid,
             error: errors[error as keyof typeof errors],
@@ -72,24 +77,39 @@ export const generateOtp = async (oidcProvider: Provider) => {
           });
         }
 
-        // Store the email in the interaction session
-        await oidcProvider.interactionResult(req, res, {
-          login: {
-            email,
-          },
-        } as any);
+        try {
+          // Store the email in the interaction session
+          await oidcProvider.interactionResult(req, res, {
+            login: {
+              email,
+            },
+          } as any);
+        } catch (err) {
+          await transaction.rollback();
+          console.error('Error setting interaction result', err);
+          throw new Error('Failed to set interaction result');
+        }
 
-        await sendEmail({
-          to: [email],
-          body: `<p>You are receiving this email because you are attempting to sign in to a BC Government website.</p>
+        try {
+          await sendEmail({
+            to: [email],
+            body: `<p>You are receiving this email because you are attempting to sign in to a BC Government website.</p>
           <p>Copy and enter this 6-digit verification code to the One Time Passcode login page. This code will expire in 5 minutes.</p>
           <p style="font-size:24px;"><strong>${newOtp}</strong></p>
           <p>Do not share this code or forward this email to anyone.</p>
           <p>If this wasn't you, please ignore this message.</p>
           <p>This is an automated message from the Government of British Columbia. Please do not reply.</p>
           `,
-          subject: `${newOtp} is your verification code.`,
-        });
+            subject: `${newOtp} is your verification code.`,
+          });
+          await transaction.commit();
+        } catch (err) {
+          await transaction.rollback();
+          console.error('Error sending OTP email', err);
+          throw new Error('Failed to send OTP email');
+        }
+
+        waitTime = await getOtpWaitTime(email, clientID as string);
 
         return res.render('otp', {
           uid,
@@ -97,7 +117,7 @@ export const generateOtp = async (oidcProvider: Provider) => {
           error: '',
           nonce: res.locals.cspNonce,
           waitTime,
-          disableResend: waitTime === -1 ? true : false,
+          disableResend: waitTime === -1,
           disableForm: false,
           disableResendError: waitTime === -1 ? errors['OTPS_LIMIT_REACHED'] : '',
         });
@@ -134,7 +154,7 @@ export const login = async (oidcProvider: Provider) => {
             email,
             nonce: res.locals.cspNonce,
             waitTime,
-            disableResend: waitTime === -1 ? true : false,
+            disableResend: waitTime === -1,
             disableForm: false,
             error: otpError,
             disableResendError: waitTime === -1 ? errors['OTPS_LIMIT_REACHED'] : '',
@@ -145,12 +165,13 @@ export const login = async (oidcProvider: Provider) => {
         if (error) {
           // Expiry page has a customized view, all others use the default.
           const view = error === 'EXPIRED_OTP' ? 'expired' : 'otp';
+
           return res.render(view, {
             uid,
             email,
             nonce: res.locals.cspNonce,
             waitTime,
-            disableResend: waitTime === -1 ? true : false,
+            disableResend: waitTime === -1,
             disableForm: error === 'EXPIRED_OTP_WITH_RESEND',
             error: errors[error as keyof typeof errors],
             disableResendError: waitTime === -1 ? errors['OTPS_LIMIT_REACHED'] : '',
@@ -187,6 +208,6 @@ export const abortLogin = async (oidcProvider: Provider) => {
 
 const isInteractionSessionExpired = async (interactionUid: string) => {
   const interaction = await getInteractionById(interactionUid);
-  if (interaction && new Date().getTime() >= new Date(interaction.expiresAt).getTime()) return true;
+  if (interaction && Date.now() >= new Date(interaction.expiresAt).getTime()) return true;
   return false;
 };

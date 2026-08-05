@@ -64,18 +64,12 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = var.container_port
         }
       ]
-      environment = [
-        {
-          name  = "AWS_REGION",
-          value = "ca-central-1"
-        }
-      ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
           awslogs-group         = var.awslogs-group
-          awslogs-region        = "ca-central-1"
+          awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
       }
@@ -91,22 +85,6 @@ resource "aws_ecs_task_definition" "this" {
         {
           name  = "APP_URL",
           value = var.app_url
-        },
-        {
-          name  = "CHES_USERNAME",
-          value = var.ches_username
-        },
-        {
-          name  = "CHES_PASSWORD",
-          value = var.ches_password
-        },
-        {
-          name  = "CHES_API_URL",
-          value = var.ches_api_url
-        },
-        {
-          name  = "CHES_TOKEN_URL",
-          value = var.ches_token_url
         },
         {
           name  = "LOG_LEVEL",
@@ -167,13 +145,41 @@ resource "aws_ecs_task_definition" "this" {
         {
           name  = "COOKIE_SECRET",
           value = random_password.cookie_secret4.result
+        },
+        {
+          name  = "AWS_REGION",
+          value = var.aws_region
+        },
+        {
+          name  = "MAIL_FROM",
+          value = var.mail_from
+        },
+        {
+          name  = "CHES_TOKEN_URL",
+          value = var.ches_token_url
+        },
+        {
+          name  = "CHES_API_URL",
+          value = var.ches_api_url
+        },
+        {
+          name  = "EMAIL_PROVIDER",
+          value = var.email_provider
         }
       ]
       secrets = [
         {
           name      = "JWKS",
           valueFrom = "${var.jwks_secret_version_arn}:JWKS::"
-        }
+        },
+        {
+          name      = "CHES_USERNAME",
+          valueFrom = "${var.jwks_secret_version_arn}:CHES_USERNAME::"
+        },
+        {
+          name      = "CHES_PASSWORD",
+          valueFrom = "${var.jwks_secret_version_arn}:CHES_PASSWORD::"
+        },
       ]
     }
   ])
@@ -189,12 +195,10 @@ resource "aws_ecs_service" "this" {
   health_check_grace_period_seconds = 60
   wait_for_steady_state             = false
 
-
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
     weight            = 100
   }
-
 
   network_configuration {
     security_groups  = var.security_group_ids

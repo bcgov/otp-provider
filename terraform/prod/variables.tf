@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region to deploy to"
+  type        = string
+  default     = "ca-central-1"
+}
+
 variable "vpc_id" {
   description = "VPC ID"
   type        = string
@@ -9,6 +15,11 @@ variable "alb_listener_arn" {
   description = "ALB listener ARN"
   type        = string
   default     = ""
+}
+
+variable "alb_arn_suffix" {
+  type    = string
+  default = ""
 }
 
 variable "custom_domain_name" {
@@ -77,30 +88,10 @@ variable "node_env" {
   default     = "production"
 }
 
-variable "ches_username" {
-  type        = string
-  description = "CHES account username"
-  default     = ""
-  sensitive   = true
-}
-
-variable "ches_password" {
-  type        = string
-  description = "CHES account password"
-  default     = ""
-  sensitive   = true
-}
-
-variable "ches_api_url" {
-  type        = string
-  description = "CHES API url"
-  default     = "https://ches.api.gov.bc.ca/api/v1/email"
-}
-
 variable "app_url" {
   type        = string
   description = "App url"
-  default     = "http://localhost:8080"
+  default     = "http://localhost:3000"
 }
 
 variable "log_level" {
@@ -171,18 +162,6 @@ variable "subnet_ids" {
   default     = []
 }
 
-variable "task_execution_role_arn" {
-  description = "ECS task execution role"
-  type        = string
-  default     = ""
-}
-
-variable "task_role_arn" {
-  description = "ECS task role"
-  type        = string
-  default     = ""
-}
-
 variable "image_repo" {
   description = "Name of the image repository for otp provider"
   type        = string
@@ -236,4 +215,42 @@ variable "autoscale_max_capacity" {
 variable "autoscale_min_capacity" {
   type    = number
   default = 2
+}
+
+variable "mail_from" {
+  type    = string
+  default = "bcgov.sso@gov.bc.ca"
+}
+
+variable "ches_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "ches_token_url" {
+  type    = string
+  default = ""
+}
+
+variable "email_provider" {
+  type    = string
+  default = ""
+}
+
+variable "enable_alb_alarm" {
+  description = "Create the ALB 5XX error-rate CloudWatch metric alarm"
+  type        = bool
+  default     = false
+}
+
+variable "enable_alerts" {
+  description = "Enable SNS alerting for CloudWatch alarms"
+  type        = bool
+  default     = false
+}
+
+variable "alert_webhook_url" {
+  description = "HTTPS webhook URL to receive CloudWatch alarm notifications via SNS"
+  type        = string
+  default     = ""
 }

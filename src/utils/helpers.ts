@@ -1,11 +1,14 @@
 import * as crypto from 'crypto';
 import { config } from '../config';
+import { getInteractionById } from '../modules/sequelize/queries/interaction';
 import type { NextFunction, Response, Request } from 'express';
 
 const { HASH_SALT } = config;
 
 export const generateOtp = () => {
-  return crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(-6);
+  const otp = crypto.randomInt(0, 1_000_000);
+  // Pad with leading zeros
+  return otp.toString().padStart(6, '0');
 };
 
 export const isOtpValid = (otp: string, expiresAt: Date): boolean => {
@@ -23,6 +26,26 @@ export const hashEmail = (email: string) => {
   return crypto.createHash('sha256').update(combined).digest('hex');
 };
 
+/** Returns the URL unchanged if it has an http/https scheme, otherwise returns ''. */
+export const safeHttpUrl = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol) ? url : '';
+  } catch {
+    return '';
+  }
+};
+
+/** Looks up the client_home_url for an interaction UID and validates its scheme. */
+export const getClientHomeUrl = async (uid: string): Promise<string> => {
+  try {
+    const interaction = await getInteractionById(uid);
+    return safeHttpUrl(interaction?.data?.params?.client_home_url || '');
+  } catch {
+    return '';
+  }
+};
+
 export const setNoCache = (req: Request, res: Response, next: NextFunction) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   next();
@@ -38,4 +61,19 @@ export class LoginTimeoutError extends Error {
     this.status = 408;
     Object.setPrototypeOf(this, LoginTimeoutError.prototype);
   }
+}
+
+/*
+  AWS API Gateway puts upstream connection headers in the forwarded header, in the format for=<public-ip>;host=<host>;....
+  This function parses out parts and returns as an object.
+*/
+export function parseForwardedHeader(header?: string) {
+  if (!header) return {};
+
+  return Object.fromEntries(
+    header.split(';').map((part) => {
+      const [k, v] = part.split('=');
+      return [k.trim(), v?.replace(/"/g, '')];
+    }),
+  );
 }

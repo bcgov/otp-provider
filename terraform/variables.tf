@@ -1,3 +1,9 @@
+variable "aws_region" {
+  description = "AWS region to deploy to"
+  type        = string
+  default     = "ca-central-1"
+}
+
 variable "subnet_a" {
   type        = string
   description = "Value of the name tag for the app subnet in AZ a"
@@ -37,18 +43,6 @@ variable "tags" {
   }
 }
 
-variable "ches_username" {
-  description = "CHES service username"
-  type        = string
-  default     = ""
-}
-
-variable "ches_password" {
-  description = "CHES service password"
-  type        = string
-  default     = ""
-}
-
 variable "dev_task_cpu" {
   description = "Fargate task CPU for dev"
   type        = number
@@ -61,7 +55,7 @@ variable "dev_task_memory" {
   default     = 512
 }
 
-variable "dev_task_containe_cpu" {
+variable "dev_task_container_cpu" {
   description = "Fargate container CPU for dev"
   type        = number
   default     = 256
@@ -91,7 +85,7 @@ variable "test_task_memory" {
   default     = 512
 }
 
-variable "test_task_containe_cpu" {
+variable "test_task_container_cpu" {
   description = "Fargate container CPU for dev"
   type        = number
   default     = 256
@@ -121,7 +115,7 @@ variable "prod_task_memory" {
   default     = 512
 }
 
-variable "prod_task_containe_cpu" {
+variable "prod_task_container_cpu" {
   description = "Fargate container CPU for dev"
   type        = number
   default     = 256
@@ -288,6 +282,21 @@ variable "dev_enable_autoscale" {
   default = false
 }
 
+variable "dev_enable_alb_alarm" {
+  type    = bool
+  default = false
+}
+
+variable "dev_enable_alerts" {
+  type    = bool
+  default = false
+}
+
+variable "dev_alert_webhook_url" {
+  type    = string
+  default = ""
+}
+
 variable "test_desired_tasks" {
   type    = number
   default = 1
@@ -298,6 +307,21 @@ variable "test_enable_autoscale" {
   default = false
 }
 
+variable "test_enable_alb_alarm" {
+  type    = bool
+  default = false
+}
+
+variable "test_enable_alerts" {
+  type    = bool
+  default = false
+}
+
+variable "test_alert_webhook_url" {
+  type    = string
+  default = ""
+}
+
 variable "prod_desired_tasks" {
   type    = number
   default = 2
@@ -306,6 +330,21 @@ variable "prod_desired_tasks" {
 variable "prod_enable_autoscale" {
   type    = bool
   default = false
+}
+
+variable "prod_enable_alb_alarm" {
+  type    = bool
+  default = false
+}
+
+variable "prod_enable_alerts" {
+  type    = bool
+  default = false
+}
+
+variable "prod_alert_webhook_url" {
+  type    = string
+  default = ""
 }
 
 variable "cpu_target_use" {
@@ -321,4 +360,24 @@ variable "autoscale_max_capacity" {
 variable "autoscale_min_capacity" {
   type    = number
   default = 2
+}
+
+variable "mail_from" {
+  type    = string
+  default = "bcgov.sso@gov.bc.ca"
+}
+
+variable "ches_token_url" {
+  type    = string
+  default = ""
+}
+
+variable "ches_api_url" {
+  type    = string
+  default = ""
+}
+
+variable "email_provider" {
+  type    = string
+  default = "ches"
 }
