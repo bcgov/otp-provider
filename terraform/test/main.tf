@@ -29,11 +29,11 @@ module "alb" {
   source = "../modules/alb"
 
   name                   = var.name
-  vpc_id                 = var.vpc_id
+  vpc_id                 = local.vpc_id
   tags                   = var.tags
   custom_domain_name     = var.custom_domain_name
-  alb_listener_arn       = var.alb_listener_arn
-  alb_arn_suffix         = var.alb_arn_suffix
+  alb_listener_arn       = local.alb_listener_arn
+  alb_arn_suffix         = local.alb_arn_suffix
   enable_alb_alarm       = var.enable_alb_alarm
   enable_alerts          = var.enable_alerts
   alert_webhook_url      = var.alert_webhook_url
@@ -45,9 +45,9 @@ module "apigateway" {
   name                = var.name
   custom_domain_name  = var.custom_domain_name
   acm_certificate_arn = module.acm.acm_certificate_arn
-  alb_listener_arn    = var.alb_listener_arn
-  subnet_ids          = var.subnet_ids
-  security_group_ids  = var.security_group_ids
+  alb_listener_arn    = local.alb_listener_arn
+  subnet_ids          = local.subnet_ids
+  security_group_ids  = local.security_group_ids
   tags                = var.tags
 }
 
@@ -55,8 +55,8 @@ module "rds_db" {
   source = "../modules/rds"
 
   name            = "${var.name}-db"
-  vpc_id          = var.vpc_id
-  subnet_ids      = var.subnet_ids
+  vpc_id          = local.vpc_id
+  subnet_ids      = local.subnet_ids
   max_capacity    = var.rds_max_capacity
   min_capacity    = var.rds_min_capacity
   scale_down_time = var.rds_scale_down_time
@@ -70,8 +70,8 @@ module "fargate" {
   name                        = var.name
   aws_region                  = var.aws_region
   target_group_arn            = module.alb.target_group_arn
-  security_group_ids          = var.security_group_ids
-  subnet_ids                  = var.subnet_ids
+  security_group_ids          = local.security_group_ids
+  subnet_ids                  = local.subnet_ids
   task_execution_role_arn     = module.iam.task_execution_role_arn
   task_role_arn               = module.iam.task_role_arn
   task_cpu                    = var.task_cpu

@@ -3,13 +3,24 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'The target environment for deployment'
+        description: 'The target AWS account for deployment'
         required: true
         default: 'Sandbox'
         type: choice
         options:
           - Sandbox
           - Production
+      env:
+        description: 'The terraform state/module to plan and apply'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - tools
+          - dev
+          - test
+          - prod
+          - grafana
       apply:
         description: 'Apply the Terraform plan after creation'
         required: false
@@ -27,6 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     # workaround for "context access might be invalid warning"
     env:
+      TF_ENV: ${{ inputs.env }}
       IMAGE_REPO: ghcr.io/bcgov/otp-provider
       IMAGE_TAG: dev
       TF_STATE_BUCKET_NAME:
@@ -51,75 +63,84 @@ jobs:
       - name: Set global environment variables
         run: |
           cat >> $GITHUB_ENV <<EOF
-          TF_VAR_otp_cwlogs_group=/aws/ecs/fargate/otp-provider
-          TF_STATE_BUCKET_KEY=otp-provider.tfstate
+          TF_STATE_BUCKET_KEY=otp-provider-${{ env.TF_ENV }}.tfstate
           TF_STATE_BUCKET_REGION=ca-central-1
-          TF_VAR_otp_image_repo=${{ env.IMAGE_REPO }}
+          TF_VAR_tf_state_bucket_region=ca-central-1
+          TF_VAR_image_repo=${{ env.IMAGE_REPO }}
+          TF_VAR_image_tag=${{ env.IMAGE_TAG }}
           TF_VAR_ches_api_url=https://ches.api.gov.bc.ca/api/v1/email
           TF_VAR_ches_token_url=https://loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
           TF_VAR_email_provider=ches
           EOF
+
       - name: Set sandbox environment variables
         if: github.event.inputs.environment == 'Sandbox'
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-sandbox
-          TF_VAR_otp_image_tag=${{ env.IMAGE_TAG }}
+          TF_VAR_tf_state_bucket_name=otp-provider-tf-sandbox
           TF_VAR_subnet_a=Dev-App-A
           TF_VAR_subnet_b=Dev-App-B
 
-          TF_VAR_dev_app_url=https://dev.sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_mail_from=bcgov.sso@gov.bc.ca
-          TF_VAR_dev_custom_domain_name=dev.sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_dev_cors_origins=https://dev.sandbox.loginproxy.gov.bc.ca
-          TF_VAR_dev_task_cpu=256
-          TF_VAR_dev_task_memory=512
-          TF_VAR_dev_task_container_cpu=256
-          TF_VAR_dev_task_container_memory=512
-          TF_VAR_dev_task_container_port=3000
-          TF_VAR_dev_rds_min_capacity=0
-          TF_VAR_dev_rds_max_capacity=2
-          TF_VAR_dev_rds_scale_down_time=3600
+          DEV_APP_URL=https://dev.sandbox.otp.loginproxy.gov.bc.ca
+          MAIL_FROM=bcgov.sso@gov.bc.ca
+          DEV_CUSTOM_DOMAIN_NAME=dev.sandbox.otp.loginproxy.gov.bc.ca
+          DEV_CORS_ORIGINS=https://dev.sandbox.loginproxy.gov.bc.ca
+          DEV_TASK_CPU=256
+          DEV_TASK_MEMORY=512
+          DEV_TASK_CONTAINER_CPU=256
+          DEV_TASK_CONTAINER_MEMORY=512
+          DEV_TASK_CONTAINER_PORT=3000
+          DEV_RDS_MIN_CAPACITY=0
+          DEV_RDS_MAX_CAPACITY=2
+          DEV_RDS_SCALE_DOWN_TIME=3600
+          DEV_DESIRED_TASKS=1
+          DEV_ENABLE_AUTOSCALE=true
+          DEV_ENABLE_ALB_ALARM=false
+          DEV_ENABLE_ALERTS=false
+          DEV_ALERT_WEBHOOK_URL=
 
-          TF_VAR_test_app_url=https://test.sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_test_custom_domain_name=test.sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_test_cors_origins=https://test.sandbox.loginproxy.gov.bc.ca
-          TF_VAR_test_task_cpu=256
-          TF_VAR_test_task_memory=512
-          TF_VAR_test_task_container_cpu=256
-          TF_VAR_test_task_container_memory=512
-          TF_VAR_test_task_container_port=3000
-          TF_VAR_test_rds_min_capacity=0
-          TF_VAR_test_rds_max_capacity=2
-          TF_VAR_test_rds_scale_down_time=3600
+          TEST_APP_URL=https://test.sandbox.otp.loginproxy.gov.bc.ca
+          TEST_CUSTOM_DOMAIN_NAME=test.sandbox.otp.loginproxy.gov.bc.ca
+          TEST_CORS_ORIGINS=https://test.sandbox.loginproxy.gov.bc.ca
+          TEST_TASK_CPU=256
+          TEST_TASK_MEMORY=512
+          TEST_TASK_CONTAINER_CPU=256
+          TEST_TASK_CONTAINER_MEMORY=512
+          TEST_TASK_CONTAINER_PORT=3000
+          TEST_RDS_MIN_CAPACITY=0
+          TEST_RDS_MAX_CAPACITY=2
+          TEST_RDS_SCALE_DOWN_TIME=3600
+          TEST_DESIRED_TASKS=1
+          TEST_ENABLE_AUTOSCALE=false
+          TEST_ENABLE_ALB_ALARM=false
+          TEST_ENABLE_ALERTS=false
+          TEST_ALERT_WEBHOOK_URL=
 
-          TF_VAR_prod_app_url=https://sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_prod_custom_domain_name=sandbox.otp.loginproxy.gov.bc.ca
-          TF_VAR_prod_cors_origins=https://sandbox.loginproxy.gov.bc.ca
-          TF_VAR_prod_task_cpu=256
-          TF_VAR_prod_task_memory=512
-          TF_VAR_prod_task_container_cpu=256
-          TF_VAR_prod_task_container_memory=512
-          TF_VAR_prod_task_container_port=3000
-          TF_VAR_prod_rds_min_capacity=0
-          TF_VAR_prod_rds_max_capacity=2
-          TF_VAR_prod_rds_scale_down_time=3600
-          TF_VAR_enable_grafana=true
+          PROD_APP_URL=https://sandbox.otp.loginproxy.gov.bc.ca
+          PROD_CUSTOM_DOMAIN_NAME=sandbox.otp.loginproxy.gov.bc.ca
+          PROD_CORS_ORIGINS=https://sandbox.loginproxy.gov.bc.ca
+          PROD_TASK_CPU=256
+          PROD_TASK_MEMORY=512
+          PROD_TASK_CONTAINER_CPU=256
+          PROD_TASK_CONTAINER_MEMORY=512
+          PROD_TASK_CONTAINER_PORT=3000
+          PROD_RDS_MIN_CAPACITY=0
+          PROD_RDS_MAX_CAPACITY=2
+          PROD_RDS_SCALE_DOWN_TIME=3600
+          PROD_DESIRED_TASKS=1
+          PROD_ENABLE_AUTOSCALE=false
+          PROD_ENABLE_ALB_ALARM=false
+          PROD_ENABLE_ALERTS=false
+          PROD_ALERT_WEBHOOK_URL=
+
           TF_VAR_grafana_kc_url=${{ vars.GRAFANA_OAUTH_BASE_URL }}
           TF_VAR_grafana_kc_client_id=${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
           TF_VAR_grafana_kc_client_secret=${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
 
-          TF_VAR_dev_desired_tasks=1
-          TF_VAR_dev_enable_autoscale=true
-          TF_VAR_test_desired_tasks=1
-          TF_VAR_test_enable_autoscale=false
-          TF_VAR_prod_desired_tasks=1
-          TF_VAR_prod_enable_autoscale=false
-
           TF_VAR_cpu_target_use=15
           TF_VAR_autoscale_max_capacity=2
           TF_VAR_autoscale_min_capacity=1
-
           EOF
 
       - name: Set production environment variables
@@ -127,67 +148,150 @@ jobs:
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-production
-          TF_VAR_otp_image_tag=${{ env.IMAGE_TAG }}
+          TF_VAR_tf_state_bucket_name=otp-provider-tf-production
           TF_VAR_subnet_a=Prod-App-A
           TF_VAR_subnet_b=Prod-App-B
 
-          TF_VAR_dev_app_url=https://dev.otp.loginproxy.gov.bc.ca
-          TF_VAR_mail_from=do-not-reply@otp.gov.bc.ca
-          TF_VAR_dev_custom_domain_name=dev.otp.loginproxy.gov.bc.ca
-          TF_VAR_dev_cors_origins=https://dev.loginproxy.gov.bc.ca
-          TF_VAR_dev_task_cpu=256
-          TF_VAR_dev_task_memory=512
-          TF_VAR_dev_task_container_cpu=256
-          TF_VAR_dev_task_container_memory=512
-          TF_VAR_dev_task_container_port=3000
-          TF_VAR_dev_rds_min_capacity=0.5
-          TF_VAR_dev_rds_max_capacity=2
-          TF_VAR_dev_rds_scale_down_time=36000
+          DEV_APP_URL=https://dev.otp.loginproxy.gov.bc.ca
+          MAIL_FROM=do-not-reply@otp.gov.bc.ca
+          DEV_CUSTOM_DOMAIN_NAME=dev.otp.loginproxy.gov.bc.ca
+          DEV_CORS_ORIGINS=https://dev.loginproxy.gov.bc.ca
+          DEV_TASK_CPU=256
+          DEV_TASK_MEMORY=512
+          DEV_TASK_CONTAINER_CPU=256
+          DEV_TASK_CONTAINER_MEMORY=512
+          DEV_TASK_CONTAINER_PORT=3000
+          DEV_RDS_MIN_CAPACITY=0.5
+          DEV_RDS_MAX_CAPACITY=2
+          DEV_RDS_SCALE_DOWN_TIME=36000
+          DEV_DESIRED_TASKS=1
+          DEV_ENABLE_AUTOSCALE=false
+          DEV_ENABLE_ALB_ALARM=false
+          DEV_ENABLE_ALERTS=false
+          DEV_ALERT_WEBHOOK_URL=
 
-          TF_VAR_test_app_url=https://test.otp.loginproxy.gov.bc.ca
-          TF_VAR_test_custom_domain_name=test.otp.loginproxy.gov.bc.ca
-          TF_VAR_test_cors_origins=https://test.loginproxy.gov.bc.ca
-          TF_VAR_test_task_cpu=256
-          TF_VAR_test_task_memory=512
-          TF_VAR_test_task_container_cpu=256
-          TF_VAR_test_task_container_memory=512
-          TF_VAR_test_task_container_port=3000
-          TF_VAR_test_rds_min_capacity=0.5
-          TF_VAR_test_rds_max_capacity=2
-          TF_VAR_test_rds_scale_down_time=36000
+          TEST_APP_URL=https://test.otp.loginproxy.gov.bc.ca
+          TEST_CUSTOM_DOMAIN_NAME=test.otp.loginproxy.gov.bc.ca
+          TEST_CORS_ORIGINS=https://test.loginproxy.gov.bc.ca
+          TEST_TASK_CPU=256
+          TEST_TASK_MEMORY=512
+          TEST_TASK_CONTAINER_CPU=256
+          TEST_TASK_CONTAINER_MEMORY=512
+          TEST_TASK_CONTAINER_PORT=3000
+          TEST_RDS_MIN_CAPACITY=0.5
+          TEST_RDS_MAX_CAPACITY=2
+          TEST_RDS_SCALE_DOWN_TIME=36000
+          TEST_DESIRED_TASKS=1
+          TEST_ENABLE_AUTOSCALE=false
+          TEST_ENABLE_ALB_ALARM=false
+          TEST_ENABLE_ALERTS=false
+          TEST_ALERT_WEBHOOK_URL=
 
-          TF_VAR_prod_app_url=https://otp.loginproxy.gov.bc.ca
-          TF_VAR_prod_custom_domain_name=otp.loginproxy.gov.bc.ca
-          TF_VAR_prod_cors_origins=https://loginproxy.gov.bc.ca
-          TF_VAR_prod_task_cpu=512
-          TF_VAR_prod_task_memory=1024
-          TF_VAR_prod_task_container_cpu=512
-          TF_VAR_prod_task_container_memory=1024
-          TF_VAR_prod_task_container_port=3000
-          TF_VAR_prod_rds_min_capacity=0.5
-          TF_VAR_prod_rds_max_capacity=2
-          TF_VAR_prod_rds_scale_down_time=36000
-          TF_VAR_enable_grafana=true
+          PROD_APP_URL=https://otp.loginproxy.gov.bc.ca
+          PROD_CUSTOM_DOMAIN_NAME=otp.loginproxy.gov.bc.ca
+          PROD_CORS_ORIGINS=https://loginproxy.gov.bc.ca
+          PROD_TASK_CPU=512
+          PROD_TASK_MEMORY=1024
+          PROD_TASK_CONTAINER_CPU=512
+          PROD_TASK_CONTAINER_MEMORY=1024
+          PROD_TASK_CONTAINER_PORT=3000
+          PROD_RDS_MIN_CAPACITY=0.5
+          PROD_RDS_MAX_CAPACITY=2
+          PROD_RDS_SCALE_DOWN_TIME=36000
+          PROD_DESIRED_TASKS=2
+          PROD_ENABLE_AUTOSCALE=true
+          PROD_ENABLE_ALB_ALARM=true
+          PROD_ENABLE_ALERTS=true
+          PROD_ALERT_WEBHOOK_URL=${{ secrets.alert_webhook_url }}
+
           TF_VAR_grafana_kc_url=${{ vars.GRAFANA_OAUTH_BASE_URL }}
           TF_VAR_grafana_kc_client_id=${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
           TF_VAR_grafana_kc_client_secret=${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
 
-          TF_VAR_dev_desired_tasks=1
-          TF_VAR_dev_enable_autoscale=false
-          TF_VAR_test_desired_tasks=1
-          TF_VAR_test_enable_autoscale=false
-          TF_VAR_prod_desired_tasks=2
-          TF_VAR_prod_enable_autoscale=true
-
-          TF_VAR_prod_enable_alb_alarm = true
-          TF_VAR_prod_enable_alerts = true
-          TF_VAR_prod_alert_webhook_url = ${{ secrets.alert_webhook_url }}
-
           TF_VAR_cpu_target_use=15
           TF_VAR_autoscale_max_capacity=4
           TF_VAR_autoscale_min_capacity=2
-
           EOF
+
+      - name: Map selected env to Terraform variables
+        run: |
+          case "${{ env.TF_ENV }}" in
+            dev)
+              cat >> $GITHUB_ENV <<EOF
+          TF_VAR_app_url=${{ env.DEV_APP_URL }}
+          TF_VAR_mail_from=${{ env.MAIL_FROM }}
+          TF_VAR_custom_domain_name=${{ env.DEV_CUSTOM_DOMAIN_NAME }}
+          TF_VAR_cors_origins=${{ env.DEV_CORS_ORIGINS }}
+          TF_VAR_task_cpu=${{ env.DEV_TASK_CPU }}
+          TF_VAR_task_memory=${{ env.DEV_TASK_MEMORY }}
+          TF_VAR_container_cpu=${{ env.DEV_TASK_CONTAINER_CPU }}
+          TF_VAR_container_memory=${{ env.DEV_TASK_CONTAINER_MEMORY }}
+          TF_VAR_container_port=${{ env.DEV_TASK_CONTAINER_PORT }}
+          TF_VAR_rds_min_capacity=${{ env.DEV_RDS_MIN_CAPACITY }}
+          TF_VAR_rds_max_capacity=${{ env.DEV_RDS_MAX_CAPACITY }}
+          TF_VAR_rds_scale_down_time=${{ env.DEV_RDS_SCALE_DOWN_TIME }}
+          TF_VAR_desired_tasks=${{ env.DEV_DESIRED_TASKS }}
+          TF_VAR_enable_autoscale=${{ env.DEV_ENABLE_AUTOSCALE }}
+          TF_VAR_enable_alb_alarm=${{ env.DEV_ENABLE_ALB_ALARM }}
+          TF_VAR_enable_alerts=${{ env.DEV_ENABLE_ALERTS }}
+          TF_VAR_alert_webhook_url=${{ env.DEV_ALERT_WEBHOOK_URL }}
+          EOF
+              ;;
+            test)
+              cat >> $GITHUB_ENV <<EOF
+          TF_VAR_app_url=${{ env.TEST_APP_URL }}
+          TF_VAR_mail_from=${{ env.MAIL_FROM }}
+          TF_VAR_custom_domain_name=${{ env.TEST_CUSTOM_DOMAIN_NAME }}
+          TF_VAR_cors_origins=${{ env.TEST_CORS_ORIGINS }}
+          TF_VAR_task_cpu=${{ env.TEST_TASK_CPU }}
+          TF_VAR_task_memory=${{ env.TEST_TASK_MEMORY }}
+          TF_VAR_container_cpu=${{ env.TEST_TASK_CONTAINER_CPU }}
+          TF_VAR_container_memory=${{ env.TEST_TASK_CONTAINER_MEMORY }}
+          TF_VAR_container_port=${{ env.TEST_TASK_CONTAINER_PORT }}
+          TF_VAR_rds_min_capacity=${{ env.TEST_RDS_MIN_CAPACITY }}
+          TF_VAR_rds_max_capacity=${{ env.TEST_RDS_MAX_CAPACITY }}
+          TF_VAR_rds_scale_down_time=${{ env.TEST_RDS_SCALE_DOWN_TIME }}
+          TF_VAR_desired_tasks=${{ env.TEST_DESIRED_TASKS }}
+          TF_VAR_enable_autoscale=${{ env.TEST_ENABLE_AUTOSCALE }}
+          TF_VAR_enable_alb_alarm=${{ env.TEST_ENABLE_ALB_ALARM }}
+          TF_VAR_enable_alerts=${{ env.TEST_ENABLE_ALERTS }}
+          TF_VAR_alert_webhook_url=${{ env.TEST_ALERT_WEBHOOK_URL }}
+          EOF
+              ;;
+            prod)
+              cat >> $GITHUB_ENV <<EOF
+          TF_VAR_app_url=${{ env.PROD_APP_URL }}
+          TF_VAR_mail_from=${{ env.MAIL_FROM }}
+          TF_VAR_custom_domain_name=${{ env.PROD_CUSTOM_DOMAIN_NAME }}
+          TF_VAR_cors_origins=${{ env.PROD_CORS_ORIGINS }}
+          TF_VAR_task_cpu=${{ env.PROD_TASK_CPU }}
+          TF_VAR_task_memory=${{ env.PROD_TASK_MEMORY }}
+          TF_VAR_container_cpu=${{ env.PROD_TASK_CONTAINER_CPU }}
+          TF_VAR_container_memory=${{ env.PROD_TASK_CONTAINER_MEMORY }}
+          TF_VAR_container_port=${{ env.PROD_TASK_CONTAINER_PORT }}
+          TF_VAR_rds_min_capacity=${{ env.PROD_RDS_MIN_CAPACITY }}
+          TF_VAR_rds_max_capacity=${{ env.PROD_RDS_MAX_CAPACITY }}
+          TF_VAR_rds_scale_down_time=${{ env.PROD_RDS_SCALE_DOWN_TIME }}
+          TF_VAR_desired_tasks=${{ env.PROD_DESIRED_TASKS }}
+          TF_VAR_enable_autoscale=${{ env.PROD_ENABLE_AUTOSCALE }}
+          TF_VAR_enable_alb_alarm=${{ env.PROD_ENABLE_ALB_ALARM }}
+          TF_VAR_enable_alerts=${{ env.PROD_ENABLE_ALERTS }}
+          TF_VAR_alert_webhook_url=${{ env.PROD_ALERT_WEBHOOK_URL }}
+          EOF
+              ;;
+            grafana)
+              cat >> $GITHUB_ENV <<EOF
+          TF_VAR_custom_domain_name=${{ env.PROD_CUSTOM_DOMAIN_NAME }}
+          EOF
+              ;;
+            tools)
+              # tools only needs the global/account-level vars already set above
+              ;;
+            *)
+              echo "Unknown env '${{ env.TF_ENV }}'" >&2
+              exit 1
+              ;;
+          esac
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -195,7 +299,7 @@ jobs:
           role-to-assume: ${{ secrets.SSO_AWS_GH_ACTIONS_DEPLOYER }}
           aws-region: ca-central-1
 
-      - name: Terraform Variables
+      - name: Terraform Backend Configuration
         run: |
           cat >"config.tf" <<EOF
           terraform {
@@ -207,17 +311,17 @@ jobs:
             }
           }
           EOF
-        working-directory: ./terraform
+        working-directory: ./terraform/${{ inputs.env }}
 
       - name: Terraform Init
         id: init
         run: terraform init -upgrade
-        working-directory: ./terraform
+        working-directory: ./terraform/${{ inputs.env }}
 
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color
-        working-directory: ./terraform
+        working-directory: ./terraform/${{ inputs.env }}
         continue-on-error: true
 
       - name: Terraform Plan Status
@@ -227,4 +331,4 @@ jobs:
       - name: Terraform Apply
         if: ${{ github.event.inputs.apply == 'true' }}
         run: terraform apply -auto-approve
-        working-directory: ./terraform
+        working-directory: ./terraform/${{ inputs.env }}
