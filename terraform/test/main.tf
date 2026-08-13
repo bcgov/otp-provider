@@ -15,7 +15,7 @@ module "iam" {
   source = "../modules/iam"
 
   name       = var.name
-  tags       = var.tags
+  tags       = local.tags
   secret_arn = aws_secretsmanager_secret.otp_provider_secret.arn
 }
 
@@ -30,7 +30,7 @@ module "alb" {
 
   name                   = var.name
   vpc_id                 = local.vpc_id
-  tags                   = var.tags
+  tags                   = local.tags
   custom_domain_name     = var.custom_domain_name
   alb_listener_arn       = local.alb_listener_arn
   alb_arn_suffix         = local.alb_arn_suffix
@@ -48,7 +48,7 @@ module "apigateway" {
   alb_listener_arn    = local.alb_listener_arn
   subnet_ids          = local.subnet_ids
   security_group_ids  = local.security_group_ids
-  tags                = var.tags
+  tags                = local.tags
 }
 
 module "rds_db" {
@@ -60,7 +60,7 @@ module "rds_db" {
   max_capacity    = var.rds_max_capacity
   min_capacity    = var.rds_min_capacity
   scale_down_time = var.rds_scale_down_time
-  tags            = var.tags
+  tags            = local.tags
   db_password     = random_password.db_password.result
 }
 
@@ -86,7 +86,7 @@ module "fargate" {
   node_env                    = var.node_env
   app_url                     = var.app_url
   mail_from                   = var.mail_from
-  tags                        = var.tags
+  tags                        = local.tags
   log_level                   = var.log_level
   db_name                     = var.db_name
   db_username                 = var.db_username
