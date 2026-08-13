@@ -152,3 +152,4 @@ node_modules/
 .terraform
 **/*.tfvars
 .vscode/
+tmp/*

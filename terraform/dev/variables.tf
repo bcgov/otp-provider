@@ -50,7 +50,10 @@ variable "container_port" {
 variable "tags" {
   description = "Tags"
   type        = map(string)
-  default     = {}
+  default = {
+    ManagedBy        = "Terraform"
+    TerraformVersion = "1.11.0"
+  }
 }
 
 variable "awslogs-group" {

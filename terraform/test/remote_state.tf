@@ -27,4 +27,8 @@ locals {
   alb_arn_suffix     = data.terraform_remote_state.tools.outputs.alb_arn_suffix
   security_group_ids = [data.terraform_remote_state.tools.outputs.app_sg_id]
   subnet_ids         = [data.terraform_remote_state.tools.outputs.subnet_a_id, data.terraform_remote_state.tools.outputs.subnet_b_id]
+
+  # Preserves the Environment/Application tags the old, single root module
+  # used to merge in per-environment before the multi-state restructuring.
+  tags = merge(var.tags, { Environment = "Test", Application = "OTP Provider" })
 }
