@@ -52,6 +52,7 @@ jobs:
         uses: release-drafter/release-drafter@v7
         with:
           config-name: .github/release.yml
+          publish: true
 
       - name: Set image tag
         id: set_image_tag
