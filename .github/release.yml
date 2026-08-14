@@ -1,5 +1,5 @@
-name-template: 'Release <RELEASE_VERSION>'
-tag-template: 'v<RELEASE_VERSION>'
+name-template: 'Release $RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
 pull-request-limit: 15
 exclude-labels:
   - 'skip-release'
