@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     reason = detail.get("reason", "Unknown")
 
     payload = {
-        "title": "🚨 ECS Deployment Failed",
+        "projectName": "OTP Provider Deployment Failed",
         "severity": "critical",
         "body": f"Service: {service}\nCluster: {cluster}\nReason: {reason}"
     }
