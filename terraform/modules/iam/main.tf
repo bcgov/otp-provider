@@ -126,7 +126,7 @@ resource "aws_iam_role_policy" "msteams_notifier" {
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
-        Resource = "*"
+        Resource = "arn:aws:logs:*:*:*"
       },
       {
         Effect = "Allow"
