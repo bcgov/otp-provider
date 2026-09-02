@@ -10,6 +10,7 @@ resource "aws_lambda_function" "ecs_failure_notifier" {
   environment {
     variables = {
       MSTEAMS_OPS_WEBHOOK = var.msteams_ops_webhook_secret_arn
+      ECS_SERVICE_URL     = var.ecs_service_url
     }
   }
 }

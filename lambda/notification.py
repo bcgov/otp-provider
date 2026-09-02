@@ -23,11 +23,13 @@ def lambda_handler(event, context):
     service = detail.get("service")
     cluster = detail.get("clusterArn")
     reason = detail.get("reason", "Unknown")
+    ecs_service_url = os.environ["ECS_SERVICE_URL"]
 
     payload = {
-        "title": "🚨 ECS Deployment Failed",
+        "projectName": "OTP Deployment Failed",
         "severity": "critical",
-        "body": f"Service: {service}\nCluster: {cluster}\nReason: {reason}"
+        "body": f"Cluster: {cluster}\nService: {service}\nReason: {reason}",
+        "url": ecs_service_url
     }
 
     response = http.request(

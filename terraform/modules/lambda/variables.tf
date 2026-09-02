@@ -17,3 +17,8 @@ variable "msteams_ops_webhook_secret_arn" {
   description = "ARN of the Secrets Manager secret containing MSTEAMS_OPS_WEBHOOK"
   type        = string
 }
+
+variable "ecs_service_url" {
+  description = "URL of the ECS service"
+  type        = string
+}
