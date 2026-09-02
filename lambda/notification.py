@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     ecs_service_url = os.environ["ECS_SERVICE_URL"]
 
     payload = {
-        "projectName": "OTP Deployment Failed",
+        "projectName": "OTP Provider Deployment Failed",
         "severity": "critical",
         "message": f"Cluster: {cluster}\nService: {service}\nReason: {reason}",
         "url": ecs_service_url
