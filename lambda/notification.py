@@ -3,7 +3,7 @@ import os
 import boto3
 import urllib3
 
-http = urllib3.PoolManager()
+http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=3.0, read=10.0))
 secretsmanager = boto3.client("secretsmanager")
 
 def lambda_handler(event, context):
