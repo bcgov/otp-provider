@@ -22,7 +22,7 @@ resource "aws_cloudwatch_event_rule" "ecs_deployment_failed" {
   event_pattern = jsonencode({
     source = ["aws.ecs"]
     detail-type = [
-      "ECS Service Deployment State Change"
+      "ECS Deployment State Change"
     ]
     detail = {
       eventName = [
