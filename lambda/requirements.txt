@@ -1,0 +1,2 @@
+boto3 = latest
+urllib3 = latest

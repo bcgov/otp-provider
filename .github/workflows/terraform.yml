@@ -315,6 +315,12 @@ jobs:
           EOF
         working-directory: ./terraform/${{ inputs.env }}
 
+      - name: Build Lambda Package
+        run: |
+          cd lambda
+          pip install -r requirements.txt
+          zip -r ../terraform/lambda.zip .
+
       - name: Terraform Init
         id: init
         run: terraform init -upgrade
