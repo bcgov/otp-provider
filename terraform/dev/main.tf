@@ -110,3 +110,12 @@ module "fargate" {
   autoscale_min_capacity = var.autoscale_min_capacity
 
 }
+
+module "lambda" {
+  source = "../modules/lambda"
+
+  name                           = var.name
+  lambda_zip                     = "${path.root}/lambda.zip"
+  lambda_role_arn                = module.iam.msteams_notifier_role_arn
+  msteams_ops_webhook_secret_arn = aws_secretsmanager_secret.otp_provider_secret.arn
+}

@@ -315,6 +315,22 @@ jobs:
           EOF
         working-directory: ./terraform/${{ inputs.env }}
 
+      - name: Build Lambda Package
+        run: |
+          rm -rf lambda/package terraform/lambda.zip
+          python -m pip install \
+            --requirement lambda/requirements.txt \
+            --target lambda/package \
+            --require-hashes \
+            --only-binary=:all: \
+            --no-cache-dir \
+            --disable-pip-version-check
+          cp lambda/notification.py lambda/package/
+          (
+            cd lambda/package
+            zip -r ../../terraform/lambda.zip . -x '*/__pycache__/*' '*.pyc'
+          )
+
       - name: Terraform Init
         id: init
         run: terraform init -upgrade

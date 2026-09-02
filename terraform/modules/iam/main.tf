@@ -97,3 +97,44 @@ resource "aws_iam_role_policy" "task_read_secret_policy" {
     ]
   })
 }
+
+resource "aws_iam_role" "msteams_notifier" {
+  name = "${var.name}-msteams-notifier-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "msteams_notifier" {
+  role = aws_iam_role.msteams_notifier.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:*:*:*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = var.secret_arn
+      }
+    ]
+  })
+}
