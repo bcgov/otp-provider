@@ -2,9 +2,13 @@ import json
 import os
 import boto3
 import urllib3
+from botocore.config import Config
 
 http = urllib3.PoolManager(timeout=urllib3.Timeout(connect=3.0, read=10.0))
-secretsmanager = boto3.client("secretsmanager")
+secretsmanager = boto3.client(
+    "secretsmanager",
+    config=Config(connect_timeout=3, read_timeout=10, retries={"max_attempts": 2}),
+)
 
 def lambda_handler(event, context):
 
