@@ -22,3 +22,18 @@ variable "ecs_service_url" {
   description = "URL of the ECS service"
   type        = string
 }
+
+variable "ecs_cluster_arn" {
+  description = "ARN of the ECS cluster hosting the monitored service"
+  type        = string
+}
+
+variable "ecs_service_arn" {
+  description = "ARN of the ECS service to monitor for deployment failures"
+  type        = string
+}
+
+variable "ecs_service_name" {
+  description = "Name of the ECS service to monitor for task failures"
+  type        = string
+}

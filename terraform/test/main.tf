@@ -119,4 +119,7 @@ module "lambda" {
   lambda_role_arn                = module.iam.msteams_notifier_role_arn
   msteams_ops_webhook_secret_arn = aws_secretsmanager_secret.otp_provider_secret.arn
   ecs_service_url                = "https://${var.aws_region}.console.aws.amazon.com/ecs/v2/clusters/${var.name}/services/${var.name}/health?region=${var.aws_region}"
+  ecs_cluster_arn                = module.fargate.cluster_arn
+  ecs_service_arn                = module.fargate.service_arn
+  ecs_service_name               = module.fargate.service_name
 }
