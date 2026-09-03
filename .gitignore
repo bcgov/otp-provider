@@ -153,3 +153,4 @@ node_modules/
 **/*.tfvars
 .vscode/
 tmp/*
+.venv
