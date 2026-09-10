@@ -15,7 +15,7 @@ module "iam" {
   source = "../modules/iam"
 
   name       = var.name
-  tags       = var.tags
+  tags       = local.tags
   secret_arn = aws_secretsmanager_secret.otp_provider_secret.arn
 }
 
@@ -29,11 +29,11 @@ module "alb" {
   source = "../modules/alb"
 
   name                   = var.name
-  vpc_id                 = var.vpc_id
-  tags                   = var.tags
+  vpc_id                 = local.vpc_id
+  tags                   = local.tags
   custom_domain_name     = var.custom_domain_name
-  alb_listener_arn       = var.alb_listener_arn
-  alb_arn_suffix         = var.alb_arn_suffix
+  alb_listener_arn       = local.alb_listener_arn
+  alb_arn_suffix         = local.alb_arn_suffix
   enable_alb_alarm       = var.enable_alb_alarm
   enable_alerts          = var.enable_alerts
   alert_webhook_url      = var.alert_webhook_url
@@ -45,22 +45,22 @@ module "apigateway" {
   name                = var.name
   custom_domain_name  = var.custom_domain_name
   acm_certificate_arn = module.acm.acm_certificate_arn
-  alb_listener_arn    = var.alb_listener_arn
-  subnet_ids          = var.subnet_ids
-  security_group_ids  = var.security_group_ids
-  tags                = var.tags
+  alb_listener_arn    = local.alb_listener_arn
+  subnet_ids          = local.subnet_ids
+  security_group_ids  = local.security_group_ids
+  tags                = local.tags
 }
 
 module "rds_db" {
   source = "../modules/rds"
 
   name            = "${var.name}-db"
-  vpc_id          = var.vpc_id
-  subnet_ids      = var.subnet_ids
+  vpc_id          = local.vpc_id
+  subnet_ids      = local.subnet_ids
   max_capacity    = var.rds_max_capacity
   min_capacity    = var.rds_min_capacity
   scale_down_time = var.rds_scale_down_time
-  tags            = var.tags
+  tags            = local.tags
   db_password     = random_password.db_password.result
 }
 
@@ -70,8 +70,8 @@ module "fargate" {
   name                        = var.name
   aws_region                  = var.aws_region
   target_group_arn            = module.alb.target_group_arn
-  security_group_ids          = var.security_group_ids
-  subnet_ids                  = var.subnet_ids
+  security_group_ids          = local.security_group_ids
+  subnet_ids                  = local.subnet_ids
   task_execution_role_arn     = module.iam.task_execution_role_arn
   task_role_arn               = module.iam.task_role_arn
   task_cpu                    = var.task_cpu
@@ -86,7 +86,7 @@ module "fargate" {
   node_env                    = var.node_env
   app_url                     = var.app_url
   mail_from                   = var.mail_from
-  tags                        = var.tags
+  tags                        = local.tags
   log_level                   = var.log_level
   db_name                     = var.db_name
   db_username                 = var.db_username
@@ -98,7 +98,7 @@ module "fargate" {
   otp_attempts_allowed        = var.otp_attempts_allowed
   otp_resend_interval_minutes = var.otp_resend_interval_minutes
   otp_resends_allowed_per_day = var.otp_resends_allowed_per_day
-  jwks_secret_version_arn     = data.aws_secretsmanager_secret_version.otp_provider_secret_version.arn
+  jwks_secret_version_arn     = data.aws_secretsmanager_secret_version.otp_provider_secret_version.secret_arn
   ches_api_url                = var.ches_api_url
   ches_token_url              = var.ches_token_url
   email_provider              = var.email_provider
@@ -109,4 +109,17 @@ module "fargate" {
   autoscale_max_capacity = var.autoscale_max_capacity
   autoscale_min_capacity = var.autoscale_min_capacity
 
+}
+
+module "lambda" {
+  source = "../modules/lambda"
+
+  name                           = var.name
+  lambda_zip                     = "${path.root}/../lambda.zip"
+  lambda_role_arn                = module.iam.msteams_notifier_role_arn
+  msteams_ops_webhook_secret_arn = aws_secretsmanager_secret.otp_provider_secret.arn
+  ecs_service_url                = "https://${var.aws_region}.console.aws.amazon.com/ecs/v2/clusters/${var.name}/services/${var.name}/health?region=${var.aws_region}"
+  ecs_cluster_arn                = module.fargate.cluster_arn
+  ecs_service_arn                = module.fargate.service_arn
+  ecs_service_name               = module.fargate.service_name
 }

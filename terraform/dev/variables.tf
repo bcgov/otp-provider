@@ -4,23 +4,6 @@ variable "aws_region" {
   default     = "ca-central-1"
 }
 
-variable "vpc_id" {
-  description = "VPC ID"
-  type        = string
-  default     = ""
-}
-
-
-variable "alb_listener_arn" {
-  description = "ALB listener ARN"
-  type        = string
-  default     = ""
-}
-
-variable "alb_arn_suffix" {
-  type    = string
-  default = ""
-}
 
 variable "custom_domain_name" {
   description = "Custom domain name of OTP provider"
@@ -67,13 +50,16 @@ variable "container_port" {
 variable "tags" {
   description = "Tags"
   type        = map(string)
-  default     = {}
+  default = {
+    ManagedBy        = "Terraform"
+    TerraformVersion = "1.11.0"
+  }
 }
 
 variable "awslogs-group" {
   description = "Name of the logs group"
   type        = string
-  default     = "/ecs/otp-provider-dev"
+  default     = "/aws/ecs/fargate/otp-provider-dev"
 }
 
 variable "app_env" {
@@ -85,7 +71,7 @@ variable "app_env" {
 variable "node_env" {
   type        = string
   description = "App node environment"
-  default     = "development"
+  default     = "production"
 }
 
 variable "app_url" {
@@ -148,18 +134,6 @@ variable "otp_resend_interval_minutes" {
   description = "Interval between otp resends"
   type        = string
   default     = ""
-}
-
-variable "security_group_ids" {
-  description = "A list of VPC security groups"
-  type        = list(string)
-  default     = []
-}
-
-variable "subnet_ids" {
-  description = "A list of VPC subnets"
-  type        = list(string)
-  default     = []
 }
 
 variable "image_repo" {

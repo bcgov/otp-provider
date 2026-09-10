@@ -9,12 +9,10 @@ locals {
 }
 
 resource "aws_alb_target_group" "grafana_target_group" {
-  count = var.enable_grafana ? 1 : 0
-
   name        = local.grafana_name
   port        = 3000
   protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.selected.id
+  vpc_id      = local.vpc_id
   target_type = "ip"
 
   health_check {
@@ -29,19 +27,17 @@ resource "aws_alb_target_group" "grafana_target_group" {
 }
 
 resource "aws_lb_listener_rule" "grafana_listener_rule" {
-  count = var.enable_grafana ? 1 : 0
-
-  listener_arn = aws_alb_listener.otp_provider_alb_listener.arn
+  listener_arn = local.alb_listener_arn
   priority     = 7
 
   action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.grafana_target_group[0].arn
+    target_group_arn = aws_alb_target_group.grafana_target_group.arn
   }
 
   condition {
     host_header {
-      values = [var.prod_custom_domain_name]
+      values = [var.custom_domain_name]
     }
   }
 
@@ -53,51 +49,39 @@ resource "aws_lb_listener_rule" "grafana_listener_rule" {
 }
 
 resource "aws_apigatewayv2_integration" "grafana" {
-  count = var.enable_grafana ? 1 : 0
-
-  api_id             = module.prod.prod_api_gateway_id
+  api_id             = local.prod_api_gateway_id
   integration_type   = "HTTP_PROXY"
-  connection_id      = module.prod.prod_api_gateway_vpc_link_id
+  connection_id      = local.prod_api_gateway_vpc_link_id
   connection_type    = "VPC_LINK"
   integration_method = "ANY"
-  integration_uri    = aws_alb_listener.otp_provider_alb_listener.arn
+  integration_uri    = local.alb_listener_arn
 }
 
 resource "aws_apigatewayv2_route" "grafana" {
-  count = var.enable_grafana ? 1 : 0
-
-  api_id    = module.prod.prod_api_gateway_id
+  api_id    = local.prod_api_gateway_id
   route_key = "ANY /grafana/{proxy+}"
-  target    = "integrations/${aws_apigatewayv2_integration.grafana[0].id}"
+  target    = "integrations/${aws_apigatewayv2_integration.grafana.id}"
 }
 
 resource "aws_efs_file_system" "grafana" {
-  count = var.enable_grafana ? 1 : 0
-
   creation_token = "grafana"
   encrypted      = true
 }
 
 resource "aws_efs_mount_target" "efs_sso_grafana_azA" {
-  count = var.enable_grafana ? 1 : 0
-
-  file_system_id  = aws_efs_file_system.grafana[0].id
-  subnet_id       = data.aws_subnet.a.id
-  security_groups = [data.aws_security_group.app_sg.id]
+  file_system_id  = aws_efs_file_system.grafana.id
+  subnet_id       = local.subnet_ids[0]
+  security_groups = local.security_group_ids
 }
 
 resource "aws_efs_mount_target" "efs_sso_grafana_azB" {
-  count = var.enable_grafana ? 1 : 0
-
-  file_system_id  = aws_efs_file_system.grafana[0].id
-  subnet_id       = data.aws_subnet.b.id
-  security_groups = [data.aws_security_group.app_sg.id]
+  file_system_id  = aws_efs_file_system.grafana.id
+  subnet_id       = local.subnet_ids[1]
+  security_groups = local.security_group_ids
 }
 
 resource "aws_efs_access_point" "grafana" {
-  count = var.enable_grafana ? 1 : 0
-
-  file_system_id = aws_efs_file_system.grafana[0].id
+  file_system_id = aws_efs_file_system.grafana.id
 
   root_directory {
     creation_info {
@@ -111,14 +95,10 @@ resource "aws_efs_access_point" "grafana" {
 }
 
 resource "aws_ecs_cluster" "grafana" {
-  count = var.enable_grafana ? 1 : 0
-
   name = local.grafana_name
 }
 
-
 resource "aws_ecs_task_definition" "grafana" {
-  count                    = var.enable_grafana ? 1 : 0
   family                   = local.grafana_name
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
@@ -126,8 +106,8 @@ resource "aws_ecs_task_definition" "grafana" {
   cpu    = "256"
   memory = "512"
 
-  execution_role_arn = aws_iam_role.grafana_task_execution[0].arn
-  task_role_arn      = aws_iam_role.grafana_task_role[0].arn
+  execution_role_arn = aws_iam_role.grafana_task_execution.arn
+  task_role_arn      = aws_iam_role.grafana_task_role.arn
 
   container_definitions = jsonencode([
     {
@@ -150,7 +130,7 @@ resource "aws_ecs_task_definition" "grafana" {
       environment = [
         {
           name  = "GF_SERVER_ROOT_URL"
-          value = "https://${var.prod_custom_domain_name}/grafana/"
+          value = "https://${var.custom_domain_name}/grafana/"
         },
         {
           name  = "GF_SERVER_SERVE_FROM_SUB_PATH"
@@ -228,10 +208,10 @@ resource "aws_ecs_task_definition" "grafana" {
     name = "efs-volume"
 
     efs_volume_configuration {
-      file_system_id     = aws_efs_file_system.grafana[0].id
+      file_system_id     = aws_efs_file_system.grafana.id
       transit_encryption = "ENABLED"
       authorization_config {
-        access_point_id = aws_efs_access_point.grafana[0].id
+        access_point_id = aws_efs_access_point.grafana.id
         iam             = "ENABLED"
       }
     }
@@ -239,22 +219,20 @@ resource "aws_ecs_task_definition" "grafana" {
 }
 
 resource "aws_ecs_service" "grafana" {
-  count = var.enable_grafana ? 1 : 0
-
   name            = local.grafana_name
-  cluster         = aws_ecs_cluster.grafana[0].id
-  task_definition = aws_ecs_task_definition.grafana[0].arn
+  cluster         = aws_ecs_cluster.grafana.id
+  task_definition = aws_ecs_task_definition.grafana.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    security_groups  = [data.aws_security_group.app_sg.id]
-    subnets          = [data.aws_subnet.a.id, data.aws_subnet.b.id]
+    security_groups  = local.security_group_ids
+    subnets          = local.subnet_ids
     assign_public_ip = false
   }
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.grafana_target_group[0].arn
+    target_group_arn = aws_alb_target_group.grafana_target_group.arn
     container_name   = local.grafana_name
     container_port   = 3000
   }
