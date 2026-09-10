@@ -155,7 +155,7 @@ jobs:
           TF_VAR_subnet_b=Prod-App-B
 
           DEV_APP_URL=https://dev.otp.loginproxy.gov.bc.ca
-          MAIL_FROM=do-not-reply@otp.gov.bc.ca
+          MAIL_FROM=bcgov.sso@gov.bc.ca
           DEV_CUSTOM_DOMAIN_NAME=dev.otp.loginproxy.gov.bc.ca
           DEV_CORS_ORIGINS=https://dev.loginproxy.gov.bc.ca
           DEV_TASK_CPU=256
