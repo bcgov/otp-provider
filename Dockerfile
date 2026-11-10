@@ -1,4 +1,4 @@
-FROM node:22.18.0-alpine as builder
+FROM node:22.23.4-alpine as builder
 
 # install yarn
 RUN apk add --no-cache yarn
@@ -18,7 +18,7 @@ RUN yarn tailwind:build
 RUN yarn build
 
 # Create fresh runner image
-FROM node:22.18.0-alpine as runner
+FROM node:22.23.4-alpine as runner
 
 WORKDIR /app
 
