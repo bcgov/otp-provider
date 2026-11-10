@@ -1,0 +1,125 @@
+# Dependabot configuration
+# @see https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+
+updates:
+  # --- Node.js / yarn dependencies ---
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    groups:
+      npm-dependencies:
+        patterns:
+          - '*'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # --- GitHub Actions workflows ---
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    groups:
+      github-actions-dependencies:
+        patterns:
+          - '*'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # --- Docker base images (root Dockerfile) ---
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    groups:
+      docker-dependencies:
+        patterns:
+          - '*'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # --- Docker base images (k6 load-test Dockerfile) ---
+  - package-ecosystem: 'docker'
+    directory: '/k6'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    groups:
+      docker-dependencies:
+        patterns:
+          - '*'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # --- Terraform provider versions: environment/root modules ---
+  - package-ecosystem: 'terraform'
+    directories:
+      - '/terraform/dev'
+      - '/terraform/grafana'
+      - '/terraform/prod'
+      - '/terraform/test'
+      - '/terraform/tools'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    groups:
+      terraform-dependencies:
+        patterns:
+          - '*'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # --- Terraform provider versions: shared modules ---
+  - package-ecosystem: 'terraform'
+    directories:
+      - '/terraform/modules/*'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 3
+    labels:
+      - 'dependencies'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    groups:
+      terraform-dependencies:
+        patterns:
+          - '*'
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
