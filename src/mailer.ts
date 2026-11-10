@@ -4,7 +4,7 @@ import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 import { URLSearchParams } from 'node:url';
 import { config } from './config';
 
-const { EMAIL_PROVIDER, CHES_TOKEN_URL, CHES_API_URL, CHES_USERNAME, CHES_PASSWORD, MAIL_FROM } = config;
+const { EMAIL_PROVIDER, CHES_TOKEN_URL, CHES_API_URL, CHES_USERNAME, CHES_PASSWORD, MAIL_FROM, NODE_ENV } = config;
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION });
 
@@ -25,6 +25,9 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, body, subject, ...rest }: EmailOptions, maxRetries = 3) => {
+  // Skip emails in playwright runners
+  if (NODE_ENV === 'test') return;
+
   if (!to || to.length === 0 || !subject || !body) {
     throw new Error('to, subject, and body are required');
   }
