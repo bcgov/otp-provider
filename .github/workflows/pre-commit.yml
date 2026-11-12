@@ -26,6 +26,9 @@ jobs:
       - name: Install asdf
         uses: asdf-vm/actions/install@v4
 
+      - name: Set global asdf nodejs version
+        run: asdf set --home nodejs $(awk '/nodejs/{print $2}' .tool-versions)
+
       - name: Rerun Pre-Commit Hooks on CI
         run: |
           pip install -r requirements.txt
