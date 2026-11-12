@@ -38,8 +38,8 @@ long@^5.2.0:
   resolved "https://registry.npmjs.org/long/-/long-5.3.2.tgz"
 
 node-forge@^1.2.1:
-  version "1.4.0"
-  resolved "https://registry.npmjs.org/node-forge/-/node-forge-1.4.0.tgz"
+  version "1.4.3"
+  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.4.3.tgz#5dc578529ac8e162f58038c6673337cabfab3277"
 
 node-jose@^2.2.0:
   version "2.2.0"
