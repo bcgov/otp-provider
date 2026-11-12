@@ -72,7 +72,7 @@ jobs:
             ${{ runner.os }}-playwright-
 
       - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps --ignore-scripts
+        run: yarn playwright install --with-deps
         working-directory: .
 
       - name: Migrate DB
