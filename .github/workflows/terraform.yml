@@ -77,6 +77,9 @@ jobs:
 
       - name: Set sandbox environment variables
         if: github.event.inputs.environment == 'Sandbox'
+        env:
+          GRAFANA_OAUTH_CLIENT_ID: ${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
+          GRAFANA_OAUTH_CLIENT_SECRET: ${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-sandbox
@@ -137,8 +140,8 @@ jobs:
           PROD_ALERT_WEBHOOK_URL=
 
           TF_VAR_grafana_kc_url=${{ vars.GRAFANA_OAUTH_BASE_URL }}
-          TF_VAR_grafana_kc_client_id=${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
-          TF_VAR_grafana_kc_client_secret=${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
+          TF_VAR_grafana_kc_client_id=$GRAFANA_OAUTH_CLIENT_ID
+          TF_VAR_grafana_kc_client_secret=$GRAFANA_OAUTH_CLIENT_SECRET
 
           TF_VAR_cpu_target_use=15
           TF_VAR_autoscale_max_capacity=2
@@ -147,6 +150,10 @@ jobs:
 
       - name: Set production environment variables
         if: github.event.inputs.environment == 'Production'
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.alert_webhook_url }}
+          GRAFANA_OAUTH_CLIENT_ID: ${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
+          GRAFANA_OAUTH_CLIENT_SECRET: ${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
         run: |
           cat >> $GITHUB_ENV <<EOF
           TF_STATE_BUCKET_NAME=otp-provider-tf-production
@@ -204,11 +211,11 @@ jobs:
           PROD_ENABLE_AUTOSCALE=true
           PROD_ENABLE_ALB_ALARM=true
           PROD_ENABLE_ALERTS=true
-          PROD_ALERT_WEBHOOK_URL=${{ secrets.alert_webhook_url }}
+          PROD_ALERT_WEBHOOK_URL=$ALERT_WEBHOOK_URL
 
           TF_VAR_grafana_kc_url=${{ vars.GRAFANA_OAUTH_BASE_URL }}
-          TF_VAR_grafana_kc_client_id=${{ secrets.GRAFANA_OAUTH_CLIENT_ID }}
-          TF_VAR_grafana_kc_client_secret=${{ secrets.GRAFANA_OAUTH_CLIENT_SECRET }}
+          TF_VAR_grafana_kc_client_id=$GRAFANA_OAUTH_CLIENT_ID
+          TF_VAR_grafana_kc_client_secret=$GRAFANA_OAUTH_CLIENT_SECRET
 
           TF_VAR_cpu_target_use=15
           TF_VAR_autoscale_max_capacity=4

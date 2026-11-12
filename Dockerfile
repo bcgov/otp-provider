@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 # Copy remaining files for build step. Note only the build dir will be copied into the runner
 COPY . .
@@ -27,6 +27,6 @@ COPY --from=builder /app/build ./build
 COPY package.json yarn.lock ./
 
 # Only install prod dependencies
-RUN yarn install --production --frozen-lockfile
+RUN yarn install --production --frozen-lockfile --ignore-scripts
 
 ENTRYPOINT [ "yarn", "start" ]
