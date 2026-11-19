@@ -162,6 +162,11 @@ For auto-generating tests, you can run `yarn playwright codegen` to click throug
 
 The test-version of the server has a few settings, using the env vars `NODE_ENV=test OTP_RESEND_INTERVAL_MINUTES=[2,3,3,4]`. When NODE_ENV is set to test, code resend intervals will be in seconds instead of minutes, useful for testing lockout functionality. You can adjust the `OTP_RESEND_INTERVAL_MINUTES` array to desired intervals in seconds then. It will also skip the CHES email callouts while in test mode.
 
+## Python Versioning
+
+To generate hashed versions for requirements.txt you can use pip-tools. Set `requirements.in` with just semver range, and run:
+`pip-compile --generate-hashes --resolver=backtracking --output-file=requirements.txt requirements.in`
+
 ## References
 
 - https://github.com/panva/node-oidc-provider

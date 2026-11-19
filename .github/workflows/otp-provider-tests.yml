@@ -44,7 +44,7 @@ jobs:
         uses: asdf-vm/actions/install@v4
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --ignore-scripts
         working-directory: .
 
       - name: Setup postgres
@@ -87,7 +87,7 @@ jobs:
         working-directory: ./e2e
 
       - name: Install JWKS generator dependencies
-        run: yarn install
+        run: yarn install --ignore-scripts
         working-directory: ./jwks-generator
 
       - name: Run Playwright tests

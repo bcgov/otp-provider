@@ -1,3 +1,6 @@
+default_language_version:
+  node: system
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -40,3 +43,5 @@ repos:
         # flags on high and critical
         entry: npx audit-ci --high --config ./audit-ci.jsonc
         language: node
+        language_version: system
+        additional_dependencies: ['audit-ci@7.1.0']

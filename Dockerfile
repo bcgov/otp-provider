@@ -1,4 +1,4 @@
-FROM node:22.18.0-alpine as builder
+FROM node:22.23.4-alpine as builder
 
 # install yarn
 RUN apk add --no-cache yarn
@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 # Copy remaining files for build step. Note only the build dir will be copied into the runner
 COPY . .
@@ -18,7 +18,7 @@ RUN yarn tailwind:build
 RUN yarn build
 
 # Create fresh runner image
-FROM node:22.18.0-alpine as runner
+FROM node:22.23.4-alpine as runner
 
 WORKDIR /app
 
@@ -27,6 +27,6 @@ COPY --from=builder /app/build ./build
 COPY package.json yarn.lock ./
 
 # Only install prod dependencies
-RUN yarn install --production --frozen-lockfile
+RUN yarn install --production --frozen-lockfile --ignore-scripts
 
 ENTRYPOINT [ "yarn", "start" ]

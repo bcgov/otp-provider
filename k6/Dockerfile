@@ -2,7 +2,7 @@
 FROM golang:1.25 AS builder
 
 # Install xk6
-RUN go install go.k6.io/xk6/cmd/xk6@latest
+RUN go install go.k6.io/xk6/cmd/xk6@v1.4.12
 
 # Build custom k6 with the TimescaleDB output
 RUN xk6 build --with github.com/grafana/xk6-output-timescaledb
